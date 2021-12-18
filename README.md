@@ -1,5 +1,5 @@
 <h1 align="center"> 
-    Pterodactyl-AutoThemes
+    Pterodactyl-AutoAddons
 </h1>
 </br>
 
