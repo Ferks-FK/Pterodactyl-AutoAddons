@@ -80,11 +80,9 @@ PTERO="/var/www/pterodactyl"
             rm -r "$PTERO"
             mkdir -p "$PTERO"
             mv "/var/www/PanelBackup.zip" /var/www/pterodactyl
+            cd /var/www/pterodactyl
             unzip /var/www/pterodactyl/PanelBackup.zip
-            rm -r PanelBackup.zip
-            cd /var/www/pterodactyl/PanelBackup
-            cp -rf app config database public resources routes storage .env /var/www/pterodactyl
-            rm -r PanelBackup
+            rm -r PanelBackup.zip PanelBackup
         else
             print_brake 45
             echo -e "* ${red}The backup does not exist, aborting...${reset}"
