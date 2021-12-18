@@ -148,7 +148,7 @@ echo
 else
 cd /var/www/pterodactyl
 mkdir -p PanelBackup
-zip -r PanelBackup.zip app config public resources routes storage database .env tailwind.config.js
+zip -r PanelBackup.zip -- * .env
 mv PanelBackup.zip PanelBackup
 fi
 }
