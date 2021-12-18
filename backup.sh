@@ -91,19 +91,12 @@ PTERO="/var/www/pterodactyl"
     fi
     case "$OS" in
     debian | ubuntu)
-        if [ ! "$(command -v nginx)" ]; then
-                chown -R www-data:www-data /var/www/pterodactyl/*
-            else
-                chown -R www-data:www-data /var/www/pterodactyl/*
-        fi
+      chown -R www-data:www-data /var/www/pterodactyl/*
     ;;
     esac
     if [ "$OS_VER_MAJOR" == "7" ] && [ "$OS_VER_MAJOR" == "8" ]; then
-        if [ ! "$(command -v nginx)" ]; then
-            chown -R nginx:nginx /var/www/pterodactyl/*
-        elif [ ! "$(command -v apache)" ]; then
-            chown -R apache:apache /var/www/pterodactyl/*
-        fi
+      chown -R nginx:nginx /var/www/pterodactyl/*
+      chown -R apache:apache /var/www/pterodactyl/*
     fi     
 }
 
