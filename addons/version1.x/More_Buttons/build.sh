@@ -121,22 +121,25 @@ fi
 #### Ask if you want to configure the addon ####
 
 ask_configure() {
-    echo
-    print_brake 30
     echo -n "* Do you want to preconfigure this addon? (Y/N): "
-    print_brake 30
     read -r CONFIGURE
 
     if [[ "$CONFIGURE" =~ [Yy] ]]; then
         while [ -z "$PMA" ]; do
             echo
-            print_brake 25
-            echo -n "* Enter the exact URL to your PhpMyAdmin here: "
-            print_brake 25
+            echo -n "* Enter the exact URL to your PhpMyAdmin here (https://phpmyadmin.com): "
             read -r PMA
             [ -z "$PMA" ] && print_error "PMA cannot be empty!"
         done
     fi
+    #### Continue Script ####
+
+    dependencies
+    backup
+    download_files
+    set_configuration
+    production
+    bye
 }
 
 
@@ -249,9 +252,3 @@ print_brake 50
 check_distro
 compatibility
 ask_configure
-dependencies
-backup
-download_files
-set_configuration
-production
-bye
