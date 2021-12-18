@@ -70,7 +70,7 @@ check_distro() {
 }
 
 
-#### Delete entire panel ####
+#### Delete entire panel and Restore Backup ####
 
 restore() {
 BKP="/var/www/pterodactyl/PanelBackup/PanelBackup.zip"
@@ -91,48 +91,25 @@ PTERO="/var/www/pterodactyl"
     fi
     case "$OS" in
     debian | ubuntu)
-      chown -R www-data:www-data /var/www/pterodactyl/*
+      if ! [ -x "$(command -v nginx)" ]; then
+        chown -R www-data:www-data /var/www/pterodactyl/*
+      elif ! [ -x "$(command -v apache)" ]; then
+        chown -R www-data:www-data /var/www/pterodactyl/*
+      fi
     ;;
     esac
-    if [ "$OS_VER_MAJOR" == "7" ] && [ "$OS_VER_MAJOR" == "8" ]; then
-      chown -R nginx:nginx /var/www/pterodactyl/*
-      chown -R apache:apache /var/www/pterodactyl/*
-    fi     
+    case "$OS" in
+    centos)
+      if ! [ -x "$(command -v nginx)" ]; then
+        chown -R nginx:nginx /var/www/pterodactyl/*
+      elif ! [ -x "$(command -v apache)" ]; then
+        chown -R apache:apache /var/www/pterodactyl/*
+      fi
+    ;;
+    esac
 }
 
-
-#### Restore Backup ####
-
-main() {
-echo
-print_brake 35
-echo -e "* ${GREEN}Checking for a backup...${reset}"
-print_brake 35
-echo
-if [ -f "/var/www/pterodactyl/PanelBackup/PanelBackup.zip" ]; then
-cd /var/www/pterodactyl/PanelBackup
-unzip PanelBackup.zip
-rm -R PanelBackup.zip
-cp -rf app config database public resources routes storage .env /var/www/pterodactyl
-cd
-else
-print_brake 45
-echo -e "* ${red}There was no backup to restore, Aborting...${reset}"
-print_brake 45
-echo
-exit 1
-fi
-if [ -f "/var/www/pterodactyl/PanelBackup/tailwind.config.js" ]; then
-cd /var/www/pterodactyl/PanelBackup
-cp -rf tailwind.config.js /var/www/pterodactyl
-cd ..
-rm -rf PanelBackup
-else
-echo
-fi
-}
-
-
+ 
 bye() {
 print_brake 50
 echo
@@ -145,5 +122,6 @@ print_brake 50
 
 
 #### Exec Script ####
+check_distro
 restore
 bye
