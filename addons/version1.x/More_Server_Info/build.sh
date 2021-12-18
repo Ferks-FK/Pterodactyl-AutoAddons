@@ -171,6 +171,24 @@ cd /var/www/pterodactyl
 rm -rf temp
 }
 
+#### Check if it is already installed ####
+
+verify_installation() {
+MORE_SERVER="/var/www/pterodactyl/resources/views/admin/nodes/view/servers.blade.php"
+  if [ -f "$MORE_SERVER" ]; then
+      print_brake 61
+      echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
+      print_brake 61
+      exit 1
+    else
+      backup
+      download_files
+      dependencies
+      production
+      bye
+  fi
+}
+
 #### Panel Production ####
 
 production() {
@@ -204,8 +222,4 @@ print_brake 50
 #### Exec Script ####
 check_distro
 compatibility
-dependencies
-backup
-download_files
-production
-bye
+verify_installation

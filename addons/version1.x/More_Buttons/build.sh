@@ -120,26 +120,23 @@ fi
 
 #### Ask if you want to configure the addon ####
 
-ask_configure() {
-    echo -n "* Do you want to preconfigure this addon? (Y/N): "
-    read -r CONFIGURE
+configure() {
+MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
+  while [ -z "$PMA" ]; do
+    echo
+    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://phpmyadmin.com)${reset}: "
+    read -r PMA
+    [ -z "$PMA" ] && print_error "PMA cannot be empty!"
+  done
+  sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
+  sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
+  sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
+  #### Continue Script ####
 
-    if [[ "$CONFIGURE" =~ [Yy] ]]; then
-        while [ -z "$PMA" ]; do
-            echo
-            echo -n "* Enter the exact URL to your PhpMyAdmin here (https://phpmyadmin.com): "
-            read -r PMA
-            [ -z "$PMA" ] && print_error "PMA cannot be empty!"
-        done
-    fi
-    #### Continue Script ####
-
-    dependencies
-    backup
-    download_files
-    set_configuration
-    production
-    bye
+  dependencies
+  production
+  bye
 }
 
 
@@ -206,16 +203,20 @@ cd /var/www/pterodactyl
 rm -rf temp
 }
 
-#### Set Configuration ####
+#### Check if it is already installed ####
 
-set_configuration() {
-    MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
-    if [[ "$CONFIGURE" =~ [Yy] ]]; then
-        sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
-    fi
-    SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
-    sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
-    sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
+verify_installation() {
+MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+  if [ -f "$MORE_BUTTONS" ]; then
+      print_brake 61
+      echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
+      print_brake 61
+      exit 1
+    else
+      backup
+      download_files
+      configure
+  fi
 }
 
 #### Panel Production ####
@@ -251,4 +252,4 @@ print_brake 50
 #### Exec Script ####
 check_distro
 compatibility
-ask_configure
+verify_installation
