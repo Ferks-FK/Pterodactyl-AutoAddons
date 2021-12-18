@@ -161,11 +161,10 @@ print_brake 25
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
-curl -sSLo More_Server_Info.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoThemes/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/More_Server_Info.tar.gz
+curl -sSLo More_Server_Info.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/More_Server_Info.tar.gz
 tar -xzvf More_Server_Info.tar.gz
 cd More_Server_Info
 cp -rf -- * /var/www/pterodactyl
-cd
 cd /var/www/pterodactyl
 rm -rf temp
 }
