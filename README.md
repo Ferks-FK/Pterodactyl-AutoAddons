@@ -14,7 +14,7 @@ The script installs addons that are compatible with their respective panel versi
 
 # Support
 
-If you have any problems with the script, ask for support in our official group [Pterodacyl-AutoThemes Support](https://discord.gg/buDBbSGJmQ)
+If you have any problems with the script, ask for support in our official group [Support](https://discord.gg/buDBbSGJmQ)
 
 # How to use
 Just run the following command as root user.
