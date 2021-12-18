@@ -15,12 +15,22 @@ set -e
 #### Variables ####
 SCRIPT_VERSION="v1.0"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
+PMA=""
 
 
 print_brake() {
   for ((n = 0; n < $1; n++)); do
     echo -n "#"
   done
+  echo ""
+}
+
+print_error() {
+  COLOR_RED='\033[0;31m'
+  COLOR_NC='\033[0m'
+
+  echo ""
+  echo -e "* ${COLOR_RED}ERROR${COLOR_NC}: $1"
   echo ""
 }
 
@@ -108,6 +118,28 @@ fi
 }
 
 
+#### Ask if you want to configure the addon ####
+
+ask_configure() {
+    echo
+    print_brake 30
+    echo -n "* Do you want to preconfigure this addon? (Y/N): "
+    print_brake 30
+    read -r CONFIGURE
+
+    if [[ "$CONFIGURE" =~ [Yy] ]]; then
+        while [ -z "$PMA" ]; do
+            echo
+            print_brake 25
+            echo -n "* Enter the exact URL to your PhpMyAdmin here: "
+            print_brake 25
+            read -r PMA
+            [ -z "$PMA" ] && print_error "PMA cannot be empty!"
+        done
+    fi
+}
+
+
 #### Install Dependencies ####
 
 dependencies() {
@@ -163,12 +195,24 @@ print_brake 25
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
-curl -sSLo More_Server_Info.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/More_Server_Info.tar.gz
-tar -xzvf More_Server_Info.tar.gz
-cd More_Server_Info
+curl -sSLo More_Buttons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Buttons/More_Buttons.tar.gz
+tar -xzvf More_Buttons.tar.gz
+cd More_Buttons
 cp -rf -- * /var/www/pterodactyl
 cd /var/www/pterodactyl
 rm -rf temp
+}
+
+#### Set Configuration ####
+
+set_configuration() {
+    MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+    if [[ "$CONFIGURE" =~ [Yy] ]]; then
+        sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
+    fi
+    SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
+    sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
+    sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
 }
 
 #### Panel Production ####
@@ -192,7 +236,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}More Server Info${GREEN} was successfully installed."
+echo -e "* ${GREEN}The addon ${YELLOW}More Buttons${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
@@ -204,8 +248,10 @@ print_brake 50
 #### Exec Script ####
 check_distro
 compatibility
+ask_configure
 dependencies
 backup
 download_files
+set_configuration
 production
 bye
