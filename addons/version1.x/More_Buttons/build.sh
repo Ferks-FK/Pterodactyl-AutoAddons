@@ -232,6 +232,7 @@ print_brake 25
 npm i -g yarn
 cd /var/www/pterodactyl
 yarn install
+yarn add @emotion/react
 yarn build:production
 fi
 }
