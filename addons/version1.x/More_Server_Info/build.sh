@@ -174,8 +174,8 @@ rm -rf temp
 #### Check if it is already installed ####
 
 verify_installation() {
-MORE_SERVER="/var/www/pterodactyl/resources/views/admin/nodes/view/servers.blade.php"
-  if [ -f "$MORE_SERVER" ]; then
+MORE_SERVER="/var/www/pterodactyl/resources/views/admin/servers/index.blade.php"
+  if grep "Memory" "$MORE_SERVER"; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
