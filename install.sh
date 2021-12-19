@@ -95,8 +95,8 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 while [ "$done" == false ]; do
   options=(
     "Restore Panel Backup (Only if you have an installation problem.)"
-    "Install More_Buttons (Only 1.6.6)"
-    "Install More_Server_Info (Only 1.6.6)"
+    "Install More Buttons (Only 1.6.6)"
+    "Install More Server Info (Only 1.6.6)"
     
     
     "Cancel Installation"
