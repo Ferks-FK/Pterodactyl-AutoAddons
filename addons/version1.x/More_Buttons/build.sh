@@ -16,6 +16,7 @@ set -e
 SCRIPT_VERSION="v1.0"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA=""
+MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
 
 
 print_brake() {
@@ -118,17 +119,16 @@ fi
 }
 
 
-#### Ask if you want to configure the addon ####
+#### Pre-configuring the addon ####
 
 configure() {
-#MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
-#SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
   while [ -z "$PMA" ]; do
     echo
     echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://phpmyadmin.com)${reset}: "
     read -r PMA
     [ -z "$PMA" ] && print_error "PMA cannot be empty!"
   done
+  sed -i -e "s@<pma>@window.open('$PMA');@g" "$MORE_BUTTONS"
   #### Continue Script ####
 
   dependencies
@@ -136,9 +136,6 @@ configure() {
   bye
 }
 
-#  sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
-#  sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
-#  sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
 
 
 #### Install Dependencies ####
@@ -200,6 +197,7 @@ curl -sSLo More_Buttons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterod
 tar -xzvf More_Buttons.tar.gz
 cd More_Buttons/resources/scripts/components/server
 cp -r MoreButtons.tsx /var/www/pterodactyl/resources/scripts/components/server
+cp -r ServerConsole.tsx /var/www/pterodactyl/resources/scripts/components/server
 cd /var/www/pterodactyl
 rm -rf temp
 }
@@ -207,7 +205,6 @@ rm -rf temp
 #### Check if it is already installed ####
 
 verify_installation() {
-MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
   if [ -f "$MORE_BUTTONS" ]; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
@@ -224,7 +221,6 @@ MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButto
 
 production() {
 DIR=/var/www/pterodactyl
-
 if [ -d "$DIR" ]; then
 echo
 print_brake 25
