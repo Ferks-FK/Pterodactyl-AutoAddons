@@ -181,10 +181,10 @@ MORE_SERVER="/var/www/pterodactyl/resources/views/admin/servers/index.blade.php"
       print_brake 61
       exit 1
     else
+      dependencies
       backup
       download_files
-      dependencies
-      production
+      #production
       bye
   fi
 }

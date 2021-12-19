@@ -197,8 +197,8 @@ mkdir -p temp
 cd temp
 curl -sSLo More_Buttons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Buttons/More_Buttons.tar.gz
 tar -xzvf More_Buttons.tar.gz
-cd More_Buttons
-cp -rf -- * /var/www/pterodactyl
+cd More_Buttons/resources/scripts/components/server
+cp -r MoreButtons.tsx /var/www/pterodactyl/resources/scripts/components/server
 cd /var/www/pterodactyl
 rm -rf temp
 }
@@ -232,7 +232,7 @@ print_brake 25
 npm i -g yarn
 cd /var/www/pterodactyl
 yarn install
-yarn add @emotion/react
+#yarn add @emotion/react
 yarn build:production
 fi
 }
