@@ -121,23 +121,24 @@ fi
 #### Ask if you want to configure the addon ####
 
 configure() {
-MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
-SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
+#MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+#SERVER_CONSOLE="/var/www/pterodactyl/resources/scripts/components/server/ServerConsole.tsx"
   while [ -z "$PMA" ]; do
     echo
     echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://phpmyadmin.com)${reset}: "
     read -r PMA
     [ -z "$PMA" ] && print_error "PMA cannot be empty!"
   done
-  sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
-  sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
-  sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
   #### Continue Script ####
 
   dependencies
   production
   bye
 }
+
+#  sed -i -e "s@<pma>@window.open('$PMA');@g" $MORE_BUTTONS
+#  sed -i "13a\import MoreButtons from '@/components/server/MoreButtons';" $SERVER_CONSOLE
+#  sed -i "50a\<MoreButtons/>" $SERVER_CONSOLE
 
 
 #### Install Dependencies ####
@@ -232,7 +233,7 @@ print_brake 25
 npm i -g yarn
 cd /var/www/pterodactyl
 yarn install
-#yarn add @emotion/react
+yarn add @emotion/react
 yarn build:production
 fi
 }
