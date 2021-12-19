@@ -124,7 +124,7 @@ fi
 configure() {
   while [ -z "$PMA" ]; do
     echo
-    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://phpmyadmin.com)${reset}: "
+    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://pma.example.com${reset}): "
     read -r PMA
     [ -z "$PMA" ] && print_error "PMA cannot be empty!"
   done
@@ -187,9 +187,11 @@ fi
 #### Download Files ####
 
 download_files() {
+echo
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
+echo
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
