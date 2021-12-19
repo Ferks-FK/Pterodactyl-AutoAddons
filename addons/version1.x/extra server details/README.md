@@ -1,0 +1,1 @@
+only for version 1.6.x.. if there is another update from pterodactyl, I will update it later.
