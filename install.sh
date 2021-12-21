@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v1.0"
+SCRIPT_VERSION="v1.1"
 
 
 print_brake() {
@@ -91,12 +91,17 @@ More_Server_Info() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/build.sh)
 }
 
+PMA_Button_NavBar() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
     "Restore Panel Backup (Only if you have an installation problem.)"
     "Install More Buttons (Only 1.6.6)"
     "Install More Server Info (Only 1.6.6)"
+    "Install PMA Button NavBar (Only 1.6.6)"
     
     
     "Cancel Installation"
@@ -106,6 +111,7 @@ while [ "$done" == false ]; do
     "Backup"
     "More_Buttons"
     "More_Server_Info"
+    "PMA_Button_NavBar"
     
     
     "cancel"
