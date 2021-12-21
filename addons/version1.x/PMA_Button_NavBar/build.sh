@@ -16,6 +16,8 @@ set -e
 #### Variables ####
 SCRIPT_VERSION="v1.1"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
+PMA_VERSION="5.1.1"
+PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
 
 
 print_brake() {
@@ -119,16 +121,16 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && sudo apt-get install -y zip
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && sudo apt-get install -y zip && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 ;;
 esac
 
 if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && sudo yum install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && sudo yum install -y zip && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 fi
 
 if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && sudo dnf install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && sudo dnf install -y zip && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 fi
 }
 
@@ -161,22 +163,31 @@ download_files() {
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
+cd /var/www/pterodactyl/public
+mkdir -p pma
+cd pma
+curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+cd phpMyAdmin-"${PMA_VERSION}"-all-languages
+mv -- * /var/www/pterodactyl/public/pma
+cd /var/www/pterodactyl/public/pma
+rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
-curl -sSLo More_Server_Info.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/More_Server_Info.tar.gz
-tar -xzvf More_Server_Info.tar.gz
-cd More_Server_Info
-cp -rf -- * /var/www/pterodactyl
+curl -sSLo PMA_Button_NavBar.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/PMA_Button_NavBar.tar.gz
+tar -xzvf PMA_Button_NavBar.tar.gz
+cd PMA_Button_NavBar
+mv -- * /var/www/pterodactyl
+sed -i -e 's@<code>@<a href="/pma" target="_blank">PhpMyAdmin</a>@g' "$PMA_ARCH"
 cd /var/www/pterodactyl
-rm -rf temp
+rm -r temp
 }
 
 #### Check if it is already installed ####
 
 verify_installation() {
-MORE_SERVER="/var/www/pterodactyl/resources/views/admin/servers/index.blade.php"
-  if grep "Memory" "$MORE_SERVER"; then
+  if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
@@ -185,7 +196,7 @@ MORE_SERVER="/var/www/pterodactyl/resources/views/admin/servers/index.blade.php"
       dependencies
       backup
       download_files
-      #production
+      production
       bye
   fi
 }
@@ -203,7 +214,7 @@ print_brake 25
 npm i -g yarn
 cd /var/www/pterodactyl
 yarn install
-yarn add @emotion/react
+#yarn add @emotion/react
 yarn build:production
 fi
 }
@@ -212,7 +223,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}More Server Info${GREEN} was successfully installed."
+echo -e "* ${GREEN}The addon ${YELLOW}PMA Button Navbar${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"

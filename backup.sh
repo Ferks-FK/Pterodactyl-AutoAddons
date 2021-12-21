@@ -41,8 +41,12 @@ red='\033[0;31m'
 
 delete_files() {
 MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
 if [ -f "$MORE_BUTTONS" ]; then
-    rm -r "$MORE_BUTTONS"
+  rm -r "$MORE_BUTTONS"
+fi
+if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
+  sed -i '110d' "$PMA_ARCH"
 fi
 }
 
