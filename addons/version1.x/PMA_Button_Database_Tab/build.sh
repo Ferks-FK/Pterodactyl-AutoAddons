@@ -16,9 +16,9 @@ set -e
 #### Variables ####
 SCRIPT_VERSION="v1.2"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
-PMA=""
 PMA_VERSION="5.1.1"
 PMA_ARCH="/var/www/pterodactyl/public/pma_redirect.html"
+PMA_NAME="phpmyadmin"
 
 
 print_brake() {
@@ -121,14 +121,7 @@ fi
 #### Pre-configuring the addon ####
 
 configure() {
-  while [ -z "$PMA" ]; do
-    echo
-    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}pma.example.com${reset}): "
-    print_warning "Please do not put ${red}http ${reset}or ${red}https${reset} at the beginning of the URL!"
-    read -r PMA
-    [ -z "$PMA" ] && print_error "PMA cannot be empty!"
-  done
-  sed -i -e "s@<pma>@$PMA@g" "$PMA_ARCH"
+  sed -i -e "s@<pma>@$PMA_NAME@g" "$PMA_ARCH"
   #### Continue Script ####
 
   production
@@ -189,13 +182,13 @@ print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
 cd /var/www/pterodactyl/public
-mkdir -p pma
-cd pma
+mkdir -p "$PMA_NAME"
+cd "$PMA_NAME"
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * /var/www/pterodactyl/public/pma
-cd /var/www/pterodactyl/public/pma
+mv -- * /var/www/pterodactyl/public/"$PMA_NAME"
+cd /var/www/pterodactyl/public/"$PMA_NAME"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd /var/www/pterodactyl
 mkdir -p temp
