@@ -178,7 +178,7 @@ cd temp
 curl -sSLo PMA_Button_NavBar.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/PMA_Button_NavBar.tar.gz
 tar -xzvf PMA_Button_NavBar.tar.gz
 cd PMA_Button_NavBar
-mv -- * /var/www/pterodactyl
+mv -f resources/scripts/routers/ServerRouter.tsx "$PMA_ARCH"
 sed -i -e 's@<code>@<a href="/pma" target="_blank">PhpMyAdmin</a>@g' "$PMA_ARCH"
 cd /var/www/pterodactyl
 rm -r temp
@@ -187,7 +187,7 @@ rm -r temp
 #### Check if it is already installed ####
 
 verify_installation() {
-  if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
+  if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
