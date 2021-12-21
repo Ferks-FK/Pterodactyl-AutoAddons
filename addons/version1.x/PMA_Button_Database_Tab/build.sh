@@ -31,7 +31,6 @@ print_brake() {
 print_warning() {
   COLOR_YELLOW='\033[1;33m'
   COLOR_NC='\033[0m'
-  echo ""
   echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
   echo ""
 }
