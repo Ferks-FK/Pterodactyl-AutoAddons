@@ -194,8 +194,10 @@ mkdir -p temp
 cd temp
 curl -sSLo PMA_Button_Database_Tab.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
 tar -xzvf PMA_Button_Database_Tab.tar.gz
-cd PMA_Button_Database_Tab
-mv -- * /var/www/pterodactyl
+cd PMA_Button_Database_Tab/public
+mv -f pma_redirect.html /var/www/pterodactyl/public
+cd /var/www/pterodactyl/temp/PMA_Button_Database_Tab/resources/scripts/components/server/databases
+mv -f DatabaseRow.tsx /var/www/pterodactyl/resources/scripts/components/server/databases
 cd /var/www/pterodactyl
 rm -r temp
 }
