@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v1.1"
+SCRIPT_VERSION="v1.2"
 
 
 print_brake() {
@@ -28,8 +28,6 @@ hyperlink() {
 
 #### Colors ####
 
-GREEN="\e[0;92m"
-YELLOW="\033[1;33m"
 reset="\e[0m"
 red='\033[0;31m'
 
@@ -95,6 +93,10 @@ PMA_Button_NavBar() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/build.sh)
 }
 
+PMA_Button_Database_Tab() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
@@ -102,6 +104,7 @@ while [ "$done" == false ]; do
     "Install More Buttons (Only 1.6.6)"
     "Install More Server Info (Only 1.6.6)"
     "Install PMA Button NavBar (Only 1.6.6)"
+    "Install PMA Button Database Tab (Only 1.6.6)"
     
     
     "Cancel Installation"
@@ -112,6 +115,7 @@ while [ "$done" == false ]; do
     "More_Buttons"
     "More_Server_Info"
     "PMA_Button_NavBar"
+    "PMA_Button_Database_Tab"
     
     
     "cancel"
