@@ -28,6 +28,14 @@ print_brake() {
   echo ""
 }
 
+print_warning() {
+  COLOR_YELLOW='\033[1;33m'
+  COLOR_NC='\033[0m'
+  echo ""
+  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
+  echo ""
+}
+
 
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
@@ -116,7 +124,8 @@ fi
 configure() {
   while [ -z "$PMA" ]; do
     echo
-    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}https://pma.example.com${reset}): "
+    echo -n -e "* Enter the exact URL to your PhpMyAdmin here (${YELLOW}pma.example.com${reset}): "
+    print_warning "Please do not put ${red}http ${reset}or ${red}https${reset} at the beginning of the URL!"
     read -r PMA
     [ -z "$PMA" ] && print_error "PMA cannot be empty!"
   done
