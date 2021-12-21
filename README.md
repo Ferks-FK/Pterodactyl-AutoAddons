@@ -55,6 +55,18 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![2](https://user-images.githubusercontent.com/69549678/146674182-f2e3ba7e-9cc0-4e6c-a398-8a4b96e37f59.PNG)
 
+## PMA Button NavBar
+*Download the original addon: [PMA Button NavBar](https://pterodactylmarket.com/resource/197)*
+
+### Before
+![1](https://user-images.githubusercontent.com/69549678/146855712-52e1a089-4b16-422c-96f8-d5c650b49137.PNG)
+
+
+### After:
+![2](https://user-images.githubusercontent.com/69549678/146855735-2d93da13-12e2-4315-b663-5d0a7074a7da.PNG)
+![3](https://user-images.githubusercontent.com/69549678/146855742-3563c915-3add-4b4c-a627-0cecb1b996a1.PNG)
+
+
 
 # Development
 
