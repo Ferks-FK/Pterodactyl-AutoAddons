@@ -40,13 +40,18 @@ red='\033[0;31m'
 #### Deletes all files installed by the script ####
 
 delete_files() {
+# MORE BUTONS
 MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
+# PMA_BUTTON_NAVBAR
 PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
+PMA_FILES="/var/www/pterodactyl/public/pma"
+#
 if [ -f "$MORE_BUTTONS" ]; then
   rm -r "$MORE_BUTTONS"
 fi
 if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
   sed -i '110d' "$PMA_ARCH"
+  rm -r "$PMA_FILES"
 fi
 }
 
