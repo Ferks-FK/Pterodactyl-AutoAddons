@@ -47,6 +47,7 @@ PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILES="/var/www/pterodactyl/public/pma"
 # PMA_BUTTON_DATABASE_TAB
 PMA_FILE="/var/www/pterodactyl/resources/scripts/components/server/databases/DatabaseRow.tsx"
+PMA_REDIRECT_FILE="/var/www/pterodactyl/public/pma_redirect.html"
 #
 if [ -f "$MORE_BUTTONS" ]; then
   rm -r "$MORE_BUTTONS"
@@ -58,7 +59,7 @@ fi
 if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE"; then
   sed -i '56,58d' "$PMA_FILE"
   sed -i '171,173d' "$PMA_FILE"
-  rm -r "$PMA_FILES"
+  rm -r "$PMA_FILES" "$PMA_REDIRECT_FILE"
 fi
 }
 

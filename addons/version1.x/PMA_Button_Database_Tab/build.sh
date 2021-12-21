@@ -120,7 +120,7 @@ configure() {
     read -r PMA
     [ -z "$PMA" ] && print_error "PMA cannot be empty!"
   done
-  sed -i -e "s@<pma>@'$PMA'@g" "$PMA_ARCH"
+  sed -i -e "s@<pma>@$PMA@g" "$PMA_ARCH"
   #### Continue Script ####
 
   production
