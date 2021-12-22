@@ -211,7 +211,7 @@ debian | ubuntu)
 
   mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
   mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
   mysql -u root -e "FLUSH PRIVILEGES;"
   cd "$SQL"
   mysql -u root "$MYSQL_DB" < create_tables.sql
@@ -224,7 +224,7 @@ centos)
 
   mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
   mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
   mysql -u root -e "FLUSH PRIVILEGES;"
   cd "$SQL"
   mysql -u root "$MYSQL_DB" < create_tables.sql

@@ -118,16 +118,6 @@ if [ -f "$DIR" ]; then
 fi
 }
 
-#### Pre-configuring the addon ####
-
-configure() {
-  sed -i -e "s@<pma>@$PMA_NAME@g" "$PMA_ARCH"
-  #### Continue Script ####
-
-  production
-  bye
-}
-
 
 #### Install Dependencies ####
 
@@ -190,6 +180,8 @@ cd phpMyAdmin-"${PMA_VERSION}"-all-languages
 mv -- * /var/www/pterodactyl/public/"$PMA_NAME"
 cd /var/www/pterodactyl/public/"$PMA_NAME"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+rm -r config.sample.inc.php
+curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
@@ -201,6 +193,57 @@ cd /var/www/pterodactyl/temp/PMA_Button_Database_Tab/resources/scripts/component
 mv -f DatabaseRow.tsx /var/www/pterodactyl/resources/scripts/components/server/databases
 cd /var/www/pterodactyl
 rm -r temp
+cd /etc
+mkdir -p phpmyadmin
+cd phpmyadmin
+mkdir save upload
+chown -R www-data.www-data /etc/phpmyadmin
+chmod -R 660 /etc/phpmyadmin
+}
+
+#### Configure PMA ####
+
+configure() {
+FILE="/var/www/pterodactyl/public/$PMA_NAME/config.inc.php"
+SQL="/var/www/pterodactyl/public/$PMA_NAME/sql"
+MYSQL_DB="phpmyadmin"
+MYSQL_USER="pma"
+MYSQL_PASSWORD="$(openssl rand -base64 16)"
+if [ -f "$FILE" ]; then
+  KEY="$(openssl rand -base64 32)"
+  sed -i -e "s@<key>@$KEY@g" "$FILE"
+  sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
+fi
+case "$OS" in
+debian | ubuntu)
+
+  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  cd "$SQL"
+  mysql -u root "$MYSQL_DB" < create_tables.sql
+  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+;;
+centos)
+  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+
+  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  cd "$SQL"
+  mysql -u root "$MYSQL_DB" < create_tables.sql
+  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+;;
+esac
+sed -i -e "s@<pma>@$PMA_NAME@g" "$PMA_ARCH"
+#### Continue Script ####
+production
+bye
 }
 
 #### Check if it is already installed ####
@@ -240,7 +283,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}PMA Button Navbar${GREEN} was successfully installed."
+echo -e "* ${GREEN}The addon ${YELLOW}PMA Button Database Tab${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"

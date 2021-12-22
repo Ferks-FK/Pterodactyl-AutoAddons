@@ -40,31 +40,35 @@ red='\033[0;31m'
 #### Deletes all files installed by the script ####
 
 delete_files() {
-# MORE BUTONS
 MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
-# PMA_BUTTON_NAVBAR
 PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILES="/var/www/pterodactyl/public/pma"
-# PMA_BUTTON_DATABASE_TAB
 PMA_FILE="/var/www/pterodactyl/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="/var/www/pterodactyl/public/pma_redirect.html"
 PMA_NAME="/var/www/pterodactyl/public/phpmyadmin"
-#
+#### ADDON MORE_BUTONS ####
 if [ -f "$MORE_BUTTONS" ]; then
   rm -r "$MORE_BUTTONS"
 fi
-if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
+#### ADDON MORE_BUTONS ####
+
+#### ADDON PMA_BUTTON_NAVBAR ####
+if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
   sed -i '110d' "$PMA_ARCH"
   rm -r "$PMA_FILES"
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
   mysql -u root -e "DROP DATABASE phpmyadmin;"
 fi
-if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE"; then
+#### ADDON PMA_BUTTON_NAVBAR ####
+
+#### ADDON PMA_BUTTON_DATABASE_TAB ####
+if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   sed -i '56,58d' "$PMA_FILE"
   sed -i '171,173d' "$PMA_FILE"
   rm -r "$PMA_NAME" "$PMA_REDIRECT_FILE"
 fi
+#### ADDON PMA_BUTTON_DATABASE_TAB ####
 }
 
 #### Restore Backup ####
