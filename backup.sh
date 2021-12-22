@@ -67,6 +67,9 @@ if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   sed -i '56,58d' "$PMA_FILE"
   sed -i '171,173d' "$PMA_FILE"
   rm -r "$PMA_NAME" "$PMA_REDIRECT_FILE"
+  rm -r /etc/phpmyadmin
+  mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
+  mysql -u root -e "DROP DATABASE phpmyadmin;"
 fi
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
 }
