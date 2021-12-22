@@ -166,12 +166,15 @@ print_brake 25
 cd /var/www/pterodactyl/public
 mkdir -p pma
 cd pma
+mkdir -p tmp && chmod 777 tmp -R
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
 mv -- * /var/www/pterodactyl/public/pma
 cd /var/www/pterodactyl/public/pma
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+rm -r config.sample.inc.php
+curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/config.inc.php
 cd /var/www/pterodactyl
 mkdir -p temp
 cd temp
@@ -182,6 +185,40 @@ mv -f resources/scripts/routers/ServerRouter.tsx "$PMA_ARCH"
 sed -i -e 's@<code>@<a href="/pma" target="_blank">PhpMyAdmin</a>@g' "$PMA_ARCH"
 cd /var/www/pterodactyl
 rm -r temp
+cd /etc
+mkdir -p phpmyadmin
+cd phpmyadmin
+mkdir save upload
+chown -R www-data.www-data /etc/phpmyadmin
+chmod -R 660 /etc/phpmyadmin
+}
+
+#### Configure PMA ####
+
+configure() {
+FILE="/var/www/pterodactyl/public/pma/config.inc.php"
+MYSQL_DB="phpmyadmin"
+MYSQL_USER="pma"
+MYSQL_PASSWORD="$(openssl rand -base64 16)"
+if [ -f "$FILE" ]; then
+  KEY="$(openssl rand -base64 32)"
+  sed -i -e "s@<key>@$KEY@g" "$FILE"
+  sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
+fi
+if [ "$OS" == "centos" ]; then
+    [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+    [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+
+    mysql -u root -p -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -p -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -p -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -p -e "FLUSH PRIVILEGES;"
+  else
+    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -e "FLUSH PRIVILEGES;"
+fi
 }
 
 #### Check if it is already installed ####
@@ -196,6 +233,7 @@ verify_installation() {
       dependencies
       backup
       download_files
+      configure
       production
       bye
   fi
