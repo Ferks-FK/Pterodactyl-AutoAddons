@@ -56,6 +56,9 @@ fi
 if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH"; then
   sed -i '110d' "$PMA_ARCH"
   rm -r "$PMA_FILES"
+  rm -r /etc/phpmyadmin
+  mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
+  mysql -u root -e "DROP DATABASE phpmyadmin;"
 fi
 if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE"; then
   sed -i '56,58d' "$PMA_FILE"

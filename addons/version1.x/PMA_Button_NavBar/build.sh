@@ -197,6 +197,7 @@ chmod -R 660 /etc/phpmyadmin
 
 configure() {
 FILE="/var/www/pterodactyl/public/pma/config.inc.php"
+SQL="/var/www/pterodactyl/public/pma/sql"
 MYSQL_DB="phpmyadmin"
 MYSQL_USER="pma"
 MYSQL_PASSWORD="$(openssl rand -base64 16)"
@@ -209,15 +210,23 @@ if [ "$OS" == "centos" ]; then
     [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
     [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
 
-    mysql -u root -p -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-    mysql -u root -p -e "CREATE DATABASE ${MYSQL_DB};"
-    mysql -u root -p -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-    mysql -u root -p -e "FLUSH PRIVILEGES;"
+    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root -e "$MYSQL_DB" < create_tables.sql
+    mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
   else
     mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
     mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
     mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
     mysql -u root -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root -e "$MYSQL_DB" < create_tables.sql
+    mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
 fi
 }
 
