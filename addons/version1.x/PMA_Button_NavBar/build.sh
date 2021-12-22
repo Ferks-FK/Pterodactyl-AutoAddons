@@ -14,7 +14,7 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.1"
+SCRIPT_VERSION="v1.3"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
