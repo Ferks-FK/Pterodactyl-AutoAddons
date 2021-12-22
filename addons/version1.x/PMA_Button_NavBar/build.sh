@@ -206,28 +206,32 @@ if [ -f "$FILE" ]; then
   sed -i -e "s@<key>@$KEY@g" "$FILE"
   sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
 fi
-if [ "$OS" == "centos" ]; then
-    [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-    [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+case "$OS" in
+debian | ubuntu)
 
-    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-    mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-    mysql -u root -e "FLUSH PRIVILEGES;"
-    cd "$SQL"
-    mysql -u root -e "$MYSQL_DB" < create_tables.sql
-    mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-    mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-  else
-    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-    mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-    mysql -u root -e "FLUSH PRIVILEGES;"
-    cd "$SQL"
-    mysql -u root -e "$MYSQL_DB" < create_tables.sql
-    mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-    mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-fi
+  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  cd "$SQL"
+  mysql -u root -e "$MYSQL_DB" < create_tables.sql
+  mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+  mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+;;
+centos)
+  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+
+  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  cd "$SQL"
+  mysql -u root -e "$MYSQL_DB" < create_tables.sql
+  mysql -u root -e "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+  mysql -u root -e "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+esac
+
 }
 
 #### Check if it is already installed ####
