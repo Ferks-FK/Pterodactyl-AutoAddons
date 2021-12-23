@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v1.3"
+SCRIPT_VERSION="v1.4"
 
 
 print_brake() {
@@ -97,14 +97,19 @@ PMA_Button_Database_Tab() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/build.sh)
 }
 
+MC_Paste() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/MC_Paste/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
-    "Restore Panel Backup (Only if you have an installation problem.)"
+    "Restore Panel Backup (To remove some addon and restore your old panel.)"
     "Install More Buttons (Only 1.6.6)"
     "Install More Server Info (Only 1.6.6)"
     "Install PMA Button NavBar (Only 1.6.6)"
     "Install PMA Button Database Tab (Only 1.6.6)"
+    "Install MC Paste (Only 1.6.2)"
     
     
     "Cancel Installation"
@@ -116,6 +121,7 @@ while [ "$done" == false ]; do
     "More_Server_Info"
     "PMA_Button_NavBar"
     "PMA_Button_Database_Tab"
+    "MC_Paste"
     
     
     "cancel"

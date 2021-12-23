@@ -15,6 +15,18 @@ set -e
 #### Variables ####
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
+#### ADDONS FILES ####
+PTERO="/var/www/pterodactyl"
+MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
+PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
+PMA_FILES="${PTERO}/public/pma"
+PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
+PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
+PMA_NAME="${PTERO}/public/phpmyadmin"
+MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+
+#### ADDONS FILES ####
+
 
 print_brake() {
   for ((n = 0; n < $1; n++)); do
@@ -40,12 +52,6 @@ red='\033[0;31m'
 #### Deletes all files installed by the script ####
 
 delete_files() {
-MORE_BUTTONS="/var/www/pterodactyl/resources/scripts/components/server/MoreButtons.tsx"
-PMA_ARCH="/var/www/pterodactyl/resources/scripts/routers/ServerRouter.tsx"
-PMA_FILES="/var/www/pterodactyl/public/pma"
-PMA_FILE="/var/www/pterodactyl/resources/scripts/components/server/databases/DatabaseRow.tsx"
-PMA_REDIRECT_FILE="/var/www/pterodactyl/public/pma_redirect.html"
-PMA_NAME="/var/www/pterodactyl/public/phpmyadmin"
 #### ADDON MORE_BUTONS ####
 if [ -f "$MORE_BUTTONS" ]; then
   rm -r "$MORE_BUTTONS"
@@ -72,6 +78,23 @@ if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   mysql -u root -e "DROP DATABASE phpmyadmin;"
 fi
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
+
+#### ADDON MC_PASTE ####
+if [ -f "$MC_PASTE" ]; then
+  rm -r "$MC_PASTE"
+  rm -r "$PTERO/app/Http/Controllers/Admin/MCPasteController.php"
+  rm -r "$PTERO/app/Http/Controllers/Api/Client/Servers/MCPasteController.php"
+  rm -r "$PTERO/app/Http/Requests/Admin/MCPasteFormRequest.php"
+  rm -r "$PTERO/app/Http/Requests/Api/Client/Servers/ShareLogRequest.php"
+  rm -r "$PTERO/app/Models/MCPasteVariable.php"
+  rm -r "$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+  rm -r "$PTERO/database/migrations/2021_07_08_120752_create_mcpaste_table.php"
+  rm -r "$PTERO/patches"
+  rm -r "$PTERO/resources/scripts/api/server/shareServerLog.ts"
+  rm -r "$PTERO/resources/scripts/components/server/McPaste.tsx"
+  rm -r "$PTERO/resources/views/admin/mcpaste"
+fi
+#### ADDON MC_PASTE ####
 }
 
 #### Restore Backup ####
