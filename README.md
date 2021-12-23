@@ -6,7 +6,8 @@
 This is a addons installation script for the [Pterodactyl Panel](https://github.com/pterodactyl/panel).<br>
 The script installs addons that are compatible with their respective panel versions.
 
-![1](https://user-images.githubusercontent.com/69549678/147018531-80688a94-6e24-4b6a-b4fd-a4c3a078626a.PNG)
+![1](https://user-images.githubusercontent.com/69549678/147263929-a30dfb1e-2bb2-402c-8681-26c9ea1ff26d.PNG)
+
 
 
 
