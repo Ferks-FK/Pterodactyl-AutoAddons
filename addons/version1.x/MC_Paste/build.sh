@@ -178,7 +178,7 @@ cd temp
 curl -sSLo MC_Paste.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/MC_Paste/MC_Paste.tar.gz
 tar -xzvf MC_Paste.tar.gz
 cd MC_Paste
-mv -f -- * "$PTERO"
+cp -rf -- * "$PTERO"
 cd "$PTERO"
 rm -r temp
 }
@@ -220,7 +220,7 @@ print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
 npm i -g yarn
-cd /var/www/pterodactyl
+cd "$PTERO"
 yarn install
 yarn add strip-ansi
 yarn build:production
