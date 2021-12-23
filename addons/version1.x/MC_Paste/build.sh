@@ -193,6 +193,7 @@ php artisan view:clear
 php artisan config:clear
 php artisan migrate --force
 php artisan queue:restart
+bye
 }
 
 #### Check if it is already installed ####
