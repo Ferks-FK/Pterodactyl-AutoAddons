@@ -14,10 +14,11 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.2"
+SCRIPT_VERSION="v1.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
+PTERO="/var/www/pterodactyl"
 PMA_VERSION="5.1.1"
-PMA_ARCH="/var/www/pterodactyl/public/pma_redirect.html"
+PMA_ARCH="$PTERO/public/pma_redirect.html"
 PMA_NAME="phpmyadmin"
 
 
@@ -90,7 +91,7 @@ echo -e "* ${GREEN}Checking if the addon is compatible with your panel...${reset
 print_brake 57
 echo
 sleep 2
-DIR="/var/www/pterodactyl/config/app.php"
+DIR="$PTERO/config/app.php"
 CODE="    'version' => '1.6.6',"
 if [ -f "$DIR" ]; then
   VERSION=$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2)
@@ -150,17 +151,20 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-if [ -f "/var/www/pterodactyl/PanelBackup/PanelBackup.zip" ]; then
-echo
-print_brake 45
-echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
-print_brake 45
-echo
-else
-cd /var/www/pterodactyl
-mkdir -p PanelBackup
-zip -r PanelBackup.zip -- * .env
-mv PanelBackup.zip PanelBackup
+  if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+    echo
+    print_brake 45
+    echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
+    print_brake 45
+    echo
+  else
+    cd "$PTERO"
+    if [ -d "$PTERO/node_modules" ]; then
+      rm -r "$PTERO/node_modules"
+    fi
+    mkdir -p PanelBackup
+    zip -r PanelBackup.zip -- * .env
+    mv PanelBackup.zip PanelBackup
 fi
 }
 
@@ -171,27 +175,27 @@ download_files() {
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
-cd /var/www/pterodactyl/public
+cd "$PTERO/public"
 mkdir -p "$PMA_NAME"
 cd "$PMA_NAME"
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * /var/www/pterodactyl/public/"$PMA_NAME"
-cd /var/www/pterodactyl/public/"$PMA_NAME"
+mv -- * "$PTERO/public/$PMA_NAME"
+cd "$PTERO/public/$PMA_NAME"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 rm -r config.sample.inc.php
 curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
-cd /var/www/pterodactyl
+cd "$PTERO"
 mkdir -p temp
 cd temp
 curl -sSLo PMA_Button_Database_Tab.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
 tar -xzvf PMA_Button_Database_Tab.tar.gz
 cd PMA_Button_Database_Tab/public
-mv -f pma_redirect.html /var/www/pterodactyl/public
-cd /var/www/pterodactyl/temp/PMA_Button_Database_Tab/resources/scripts/components/server/databases
-mv -f DatabaseRow.tsx /var/www/pterodactyl/resources/scripts/components/server/databases
-cd /var/www/pterodactyl
+mv -f pma_redirect.html "$PTERO/public"
+cd "$PTERO/temp/PMA_Button_Database_Tab/resources/scripts/components/server/databases"
+mv -f DatabaseRow.tsx "$PTERO/resources/scripts/components/server/databases"
+cd "$PTERO"
 rm -r temp
 cd /etc
 mkdir -p phpmyadmin
@@ -204,8 +208,8 @@ chmod -R 660 /etc/phpmyadmin
 #### Configure PMA ####
 
 configure() {
-FILE="/var/www/pterodactyl/public/$PMA_NAME/config.inc.php"
-SQL="/var/www/pterodactyl/public/$PMA_NAME/sql"
+FILE="$PTERO/public/$PMA_NAME/config.inc.php"
+SQL="$PTERO/public/$PMA_NAME/sql"
 MYSQL_DB="phpmyadmin"
 MYSQL_USER="pma"
 MYSQL_PASSWORD="$(openssl rand -base64 16)"
@@ -265,17 +269,18 @@ verify_installation() {
 #### Panel Production ####
 
 production() {
-DIR=/var/www/pterodactyl
-
-if [ -d "$DIR" ]; then
 echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
-npm i -g yarn
-cd /var/www/pterodactyl
-yarn install
-yarn build:production
+if [ -d "$PTERO/node_modules" ]; then
+    cd "$PTERO"
+    yarn build:production
+  else
+    npm i -g yarn
+    cd "$PTERO"
+    yarn install
+    yarn build:production
 fi
 }
 

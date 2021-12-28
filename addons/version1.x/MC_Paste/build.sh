@@ -149,17 +149,20 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-if [ -f "/var/www/pterodactyl/PanelBackup/PanelBackup.zip" ]; then
-echo
-print_brake 45
-echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
-print_brake 45
-echo
-else
-cd /var/www/pterodactyl
-mkdir -p PanelBackup
-zip -r PanelBackup.zip -- * .env
-mv PanelBackup.zip PanelBackup
+  if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+    echo
+    print_brake 45
+    echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
+    print_brake 45
+    echo
+  else
+    cd "$PTERO"
+    if [ -d "$PTERO/node_modules" ]; then
+      rm -r "$PTERO/node_modules"
+    fi
+    mkdir -p PanelBackup
+    zip -r PanelBackup.zip -- * .env
+    mv PanelBackup.zip PanelBackup
 fi
 }
 
@@ -216,22 +219,20 @@ verify_installation() {
 #### Panel Production ####
 
 production() {
-if [ -d "$PTERO" ]; then
 echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
-  if [ -d "$PTERO/node_modules" ]; then
-      cd "$PTERO"
-      yarn add strip-ansi
-      yarn build:production
-    else
-      npm i -g yarn
-      cd "$PTERO"
-      yarn install
-      yarn add strip-ansi
-      yarn build:production
-  fi
+if [ -d "$PTERO/node_modules" ]; then
+    cd "$PTERO"
+    yarn add strip-ansi
+    yarn build:production
+  else
+    npm i -g yarn
+    cd "$PTERO"
+    yarn install
+    yarn add strip-ansi
+    yarn build:production
 fi
 }
 
