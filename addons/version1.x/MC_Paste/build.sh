@@ -193,6 +193,7 @@ php artisan view:clear
 php artisan config:clear
 php artisan migrate --force
 php artisan queue:restart
+production
 bye
 }
 
@@ -220,11 +221,17 @@ echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
-npm i -g yarn
-cd "$PTERO"
-yarn install
-yarn add strip-ansi
-yarn build:production
+  if [ -d "$PTERO/node_modules" ]; then
+      cd "$PTERO"
+      yarn add strip-ansi
+      yarn build:production
+    else
+      npm i -g yarn
+      cd "$PTERO"
+      yarn install
+      yarn add strip-ansi
+      yarn build:production
+  fi
 fi
 }
 
