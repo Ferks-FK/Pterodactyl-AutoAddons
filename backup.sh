@@ -104,12 +104,12 @@ print_brake 35
 echo -e "* ${GREEN}Checking for a backup...${reset}"
 print_brake 35
 echo
-if [ -f "/var/www/pterodactyl/PanelBackup/PanelBackup.zip" ]; then
-    cd /var/www/pterodactyl/PanelBackup
+if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+    cd "$PTERO/PanelBackup"
     unzip PanelBackup.zip
     rm -R PanelBackup.zip
-    cp -r -- * .env /var/www/pterodactyl
-    rm -r /var/www/pterodactyl/PanelBackup
+    cp -r -- * .env "$PTERO"
+    rm -r "$PTERO/PanelBackup"
   else
     print_brake 45
     echo -e "* ${red}There was no backup to restore, Aborting...${reset}"
