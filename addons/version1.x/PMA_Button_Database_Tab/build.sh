@@ -14,7 +14,7 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.5"
+SCRIPT_VERSION="v1.6"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PTERO="/var/www/pterodactyl"
 PMA_VERSION="5.1.1"
@@ -197,11 +197,23 @@ cd "$PTERO/temp/PMA_Button_Database_Tab/resources/scripts/components/server/data
 mv -f DatabaseRow.tsx "$PTERO/resources/scripts/components/server/databases"
 cd "$PTERO"
 rm -r temp
+}
+
+
+#### Set Permissions ####
+
+set_permissions() {
 cd /etc
 mkdir -p phpmyadmin
 cd phpmyadmin
 mkdir save upload
-chown -R www-data.www-data /etc/phpmyadmin
+case "$OS" in
+debian | ubuntu)
+  chown -R www-data.www-data /etc/phpmyadmin
+;;
+centos)
+  chown -R nginx.nginx /etc/phpmyadmin
+esac
 chmod -R 660 /etc/phpmyadmin
 }
 
@@ -262,6 +274,7 @@ verify_installation() {
       dependencies
       backup
       download_files
+      set_permissions
       configure
   fi
 }

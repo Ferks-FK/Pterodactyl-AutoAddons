@@ -14,7 +14,7 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.5"
+SCRIPT_VERSION="v1.6"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PTERO="/var/www/pterodactyl"
 CONFIG_LINK="https://github.com/Ferks-FK/Pterodactyl-AutoAddons/blob/main/addons/version1.x/MC_Paste/CONFIG.MD"
@@ -191,11 +191,13 @@ rm -r temp
 configure() {
 cd "$PTERO"
 chmod -R 755 storage/* bootstrap/cache
+[ "$OS" == "centos" ] && export PATH=/usr/local/bin:$PATH
 COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
+mysql -u root "panel" < sql/create_mcpaste_variables.sql
 php artisan view:clear
 php artisan config:clear
-php artisan migrate --force
 php artisan queue:restart
+rm -r sql
 production
 bye
 }

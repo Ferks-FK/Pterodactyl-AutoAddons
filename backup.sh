@@ -92,6 +92,7 @@ if [ -f "$MC_PASTE" ]; then
   rm -r "$PTERO/resources/scripts/api/server/shareServerLog.ts"
   rm -r "$PTERO/resources/scripts/components/server/McPaste.tsx"
   rm -r "$PTERO/resources/views/admin/mcpaste"
+  mysql -u root -e "USE panel;DROP TABLE mcpaste_variables;"
 fi
 #### ADDON MC_PASTE ####
 }
