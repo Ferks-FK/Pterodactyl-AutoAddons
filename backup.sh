@@ -87,7 +87,6 @@ if [ -f "$MC_PASTE" ]; then
   rm -r "$PTERO/app/Http/Requests/Admin/MCPasteFormRequest.php"
   rm -r "$PTERO/app/Http/Requests/Api/Client/Servers/ShareLogRequest.php"
   rm -r "$PTERO/app/Models/MCPasteVariable.php"
-  rm -r "$PTERO/database/migrations/2021_07_08_120752_create_mcpaste_table.php"
   rm -r "$PTERO/patches"
   rm -r "$PTERO/resources/scripts/api/server/shareServerLog.ts"
   rm -r "$PTERO/resources/scripts/components/server/McPaste.tsx"
