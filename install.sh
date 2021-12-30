@@ -109,7 +109,7 @@ while [ "$done" == false ]; do
     "Install More Server Info (Only 1.6.6)"
     "Install PMA Button NavBar (Only 1.6.6)"
     "Install PMA Button Database Tab (Only 1.6.6)"
-    "Install MC Paste (Only 1.6.2)"
+    "Install MC Paste (Only 1.6.6)"
     
     
     "Cancel Installation"
