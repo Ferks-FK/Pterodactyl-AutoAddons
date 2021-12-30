@@ -78,6 +78,16 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![2](https://user-images.githubusercontent.com/69549678/147019131-0a78a67b-2e60-4ad7-b37b-1f8a4cd5a797.PNG)
 
+## MC Paste
+*Download the original addon: [MC Paste]()*
+
+### Before:
+![3](https://user-images.githubusercontent.com/69549678/147749722-52d6dab7-210f-472e-b0f9-112dc9128e7b.PNG)
+
+
+### After:
+![1](https://user-images.githubusercontent.com/69549678/147749744-fdbd53a7-621f-441a-afbc-db57d8fa7c8e.PNG)
+![2](https://user-images.githubusercontent.com/69549678/147749757-d1a6b001-034b-428b-a179-f5659ad9792c.PNG)
 
 
 
