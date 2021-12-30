@@ -14,7 +14,7 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.6"
+SCRIPT_VERSION="v1.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PTERO="/var/www/pterodactyl"
 PMA_VERSION="5.1.1"

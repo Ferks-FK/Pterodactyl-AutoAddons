@@ -14,7 +14,7 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.5"
+SCRIPT_VERSION="v1.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PTERO="/var/www/pterodactyl"
 MORE_SERVER="$PTERO/resources/views/admin/servers/index.blade.php"
