@@ -90,9 +90,9 @@ print_brake 57
 echo
 sleep 2
 DIR="/var/www/pterodactyl/config/app.php"
-CODE="    'version' => '1.6.2',"
+VERSION="1.6.6"
 if [ -f "$DIR" ]; then
-  VERSION=$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2)
+  CODE=$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
     if [ "$VERSION" == "$CODE" ]; then
         echo
         print_brake 23
