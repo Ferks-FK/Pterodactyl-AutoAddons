@@ -5,27 +5,24 @@
 
 This is a addons installation script for the [Pterodactyl Panel](https://github.com/pterodactyl/panel).<br>
 The script installs addons that are compatible with their respective panel versions.
+<br>
 
-![1](https://user-images.githubusercontent.com/69549678/147263929-a30dfb1e-2bb2-402c-8681-26c9ea1ff26d.PNG)
+<img src="https://user-images.githubusercontent.com/69549678/147263929-a30dfb1e-2bb2-402c-8681-26c9ea1ff26d.PNG"></img>
 
+<h1 align="center">Support</h1>
 
-
-
-
-
-
-
-# Support
 
 If you have any problems with the script, ask for support in our official group [Support](https://discord.gg/buDBbSGJmQ)
 
-# How to use
+<h1 align="center">How to use</h1>
+
 Just run the following command as root user.
 
 ```
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/main/install.sh)
 ```
-## Attention!
+<h1 align="center">Attention!</h1>
+
 *Do not run the command using sudo.*
 
 **Example:** ```$ sudo bash <(curl -s...```
@@ -35,9 +32,10 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 **Example:** ```# bash <(curl -s...```
 
 
-# Addons for the 1.6.6 panel
+<h1 align="center">Addons for the 1.6.6 panel</h1></br>
 
-## More Buttons
+<h1 align="center">More Buttons</h1>
+
 *Download the original addon: [More Buttons](https://pterodactylmarket.com/resource/325)*
 
 ### Before:
@@ -47,7 +45,8 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![1](https://user-images.githubusercontent.com/69549678/146674034-c662f33a-b230-4d7d-8f42-849533106e68.PNG)
 
-## More Server Info
+<h1 align="center">More Server Info</h1>
+
 *Download the original addon: [More Server Info](https://pterodactylmarket.com/resource/168)*
 
 ### Before:
@@ -57,7 +56,8 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![2](https://user-images.githubusercontent.com/69549678/146674182-f2e3ba7e-9cc0-4e6c-a398-8a4b96e37f59.PNG)
 
-## PMA Button NavBar
+<h1 align="center">PMA Button NavBar</h1>
+
 *Download the original addon: [PMA Button NavBar](https://pterodactylmarket.com/resource/197)*
 
 ### Before:
@@ -68,7 +68,8 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ![2](https://user-images.githubusercontent.com/69549678/146855735-2d93da13-12e2-4315-b663-5d0a7074a7da.PNG)
 ![3](https://user-images.githubusercontent.com/69549678/146855742-3563c915-3add-4b4c-a627-0cecb1b996a1.PNG)
 
-## PMA Button Database Tab
+<h1 align="center">PMA Button Database Tab</h1>
+
 *Download the original addon: [PMA Button Database Tab](https://pterodactylmarket.com/resource/214)*
 
 ### Before:
@@ -78,7 +79,8 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![2](https://user-images.githubusercontent.com/69549678/147019131-0a78a67b-2e60-4ad7-b37b-1f8a4cd5a797.PNG)
 
-## MC Paste
+<h1 align="center">MC Paste</h1>
+
 *Download the original addon: [MC Paste](https://github.com/HM4Development/mcpaste-addon)*
 
 ### Before:
@@ -91,10 +93,10 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 
 
 
-# Development
+<h1 align="center">Development</h1>
 
 This script was created and is being maintained by [Ferks - FK](https://github.com/Ferks-FK).
 
-# Extra informations
+<h1 align="center">Extra informations</h1>
 
 If you have a theme, and would like to add it to the script, feel free to suggest it in the support group.
