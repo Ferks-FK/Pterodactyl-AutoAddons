@@ -79,7 +79,7 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ![2](https://user-images.githubusercontent.com/69549678/147019131-0a78a67b-2e60-4ad7-b37b-1f8a4cd5a797.PNG)
 
 ## MC Paste
-*Download the original addon: [MC Paste]()*
+*Download the original addon: [MC Paste](https://github.com/HM4Development/mcpaste-addon)*
 
 ### Before:
 ![3](https://user-images.githubusercontent.com/69549678/147749722-52d6dab7-210f-472e-b0f9-112dc9128e7b.PNG)
