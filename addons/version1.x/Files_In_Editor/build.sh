@@ -17,13 +17,19 @@ set -e
 SCRIPT_VERSION="v1.8"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PTERO="/var/www/pterodactyl"
-MORE_SERVER="$PTERO/resources/views/admin/servers/index.blade.php"
 
 
 print_brake() {
   for ((n = 0; n < $1; n++)); do
     echo -n "#"
   done
+  echo ""
+}
+
+print_warning() {
+  COLOR_YELLOW='\033[1;33m'
+  COLOR_NC='\033[0m'
+  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
   echo ""
 }
 
@@ -173,6 +179,9 @@ print_brake 32
     echo
   else
     cd "$PTERO"
+    if [ -d "$PTERO/node_modules" ]; then
+      rm -r "$PTERO/node_modules"
+    fi
     mkdir -p PanelBackup
     zip -r PanelBackup.zip -- * .env
     mv PanelBackup.zip PanelBackup
@@ -183,24 +192,27 @@ fi
 #### Download Files ####
 
 download_files() {
+echo
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
+echo
 cd "$PTERO"
 mkdir -p temp
 cd temp
-curl -sSLo More_Server_Info.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/More_Server_Info.tar.gz
-tar -xzvf More_Server_Info.tar.gz
-cd More_Server_Info
+curl -sSLo Files_In_Editor.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/Files_In_Editor.tar.gz
+tar -xzvf Files_In_Editor.tar.gz
+cd Files_In_Editor
 cp -rf -- * "$PTERO"
 cd "$PTERO"
-rm -rf temp
+rm -r temp
 }
+
 
 #### Check if it is already installed ####
 
 verify_installation() {
-  if grep "Memory" "$MORE_SERVER"; then
+  if [ -f "$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php" ]; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
@@ -209,15 +221,33 @@ verify_installation() {
       dependencies
       backup
       download_files
-      bye
+      configure
   fi
+}
+
+#### Panel Production ####
+
+production() {
+echo
+print_brake 25
+echo -e "* ${GREEN}Producing panel...${reset}"
+print_brake 25
+if [ -d "$PTERO/node_modules" ]; then
+    cd "$PTERO"
+    yarn build:production
+  else
+    npm i -g yarn
+    cd "$PTERO"
+    yarn install
+    yarn build:production
+fi
 }
 
 
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}More Server Info${GREEN} was successfully installed."
+echo -e "* ${GREEN}The addon ${YELLOW}Files In Editor${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
