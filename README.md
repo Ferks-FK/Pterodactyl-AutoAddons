@@ -7,7 +7,7 @@ This is a addons installation script for the [Pterodactyl Panel](https://github.
 The script installs addons that are compatible with their respective panel versions.
 <br>
 
-<img src="https://user-images.githubusercontent.com/69549678/147263929-a30dfb1e-2bb2-402c-8681-26c9ea1ff26d.PNG"></img>
+<img src="https://user-images.githubusercontent.com/69549678/147832560-f2140b8b-6465-430a-95e9-ab864dd4ba18.PNG"></img>
 
 <h1 align="center">Support</h1>
 
@@ -92,6 +92,30 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 ### After:
 ![1](https://user-images.githubusercontent.com/69549678/147749744-fdbd53a7-621f-441a-afbc-db57d8fa7c8e.PNG)
 ![2](https://user-images.githubusercontent.com/69549678/147749757-d1a6b001-034b-428b-a179-f5659ad9792c.PNG)
+
+
+<h1 align="center">Bigger Console</h1>
+
+*Download the original addon: [Bigger Console](https://github.com/Fredthedoggy/frogpanel/tree/fredthedoggy/bigger-console)*
+
+### Before:
+![1](https://user-images.githubusercontent.com/69549678/147832634-370916c0-8523-443e-9059-4eb45b82ab5b.PNG)
+
+
+### After:
+![2](https://user-images.githubusercontent.com/69549678/147832670-8862820d-efb4-4a67-a8f2-86ee12ecb7de.PNG)
+
+
+<h1 align="center">Files In Editor</h1>
+
+*Download the original addon: [Files In Editor](https://github.com/Fredthedoggy/frogpanel/tree/fredthedoggy/view-files-in-editor)*
+
+### Before:
+![1](https://user-images.githubusercontent.com/69549678/147832767-78dae49c-ca0b-405e-9e8b-9a94aa0662c2.PNG)
+
+
+### After:
+![1](https://user-images.githubusercontent.com/69549678/147832828-0f28f1a2-e24b-4e3f-b680-0641e981d6f5.PNG)
 
 
 
