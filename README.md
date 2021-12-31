@@ -39,11 +39,13 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 *Download the original addon: [More Buttons](https://pterodactylmarket.com/resource/325)*
 
 ### Before:
-![1](https://user-images.githubusercontent.com/69549678/146674052-390deeb3-784d-4ab5-ae60-85c599769299.PNG)
+![1](https://user-images.githubusercontent.com/69549678/147824381-6f579414-1920-497d-a6e0-74fa437988e2.PNG)
+
 
 
 ### After:
-![1](https://user-images.githubusercontent.com/69549678/146674034-c662f33a-b230-4d7d-8f42-849533106e68.PNG)
+![1](https://user-images.githubusercontent.com/69549678/147825106-5a5d7067-4f47-45a4-9fec-ddc0abdfe334.PNG)
+
 
 <h1 align="center">More Server Info</h1>
 
