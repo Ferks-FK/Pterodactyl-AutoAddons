@@ -101,6 +101,14 @@ MC_Paste() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/MC_Paste/build.sh)
 }
 
+Bigger_Console() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Bigger_Console/build.sh)
+}
+
+Files_In_Editor() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
@@ -110,6 +118,8 @@ while [ "$done" == false ]; do
     "Install PMA Button NavBar (Only 1.6.6)"
     "Install PMA Button Database Tab (Only 1.6.6)"
     "Install MC Paste (Only 1.6.6)"
+    "Install Bigger Console (Only 1.6.6)"
+    "Install Files In Editor (Only 1.6.6)"
     
     
     "Cancel Installation"
@@ -122,6 +132,8 @@ while [ "$done" == false ]; do
     "PMA_Button_NavBar"
     "PMA_Button_Database_Tab"
     "MC_Paste"
+    "Bigger_Console"
+    "Files_In_Editor"
     
     
     "cancel"
