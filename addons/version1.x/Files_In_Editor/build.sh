@@ -221,7 +221,8 @@ verify_installation() {
       dependencies
       backup
       download_files
-      configure
+      production
+      bye
   fi
 }
 
