@@ -13,10 +13,11 @@ set -e
 ########################################################
 
 #### Variables ####
+
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 #### ADDONS FILES ####
-PTERO="/var/www/pterodactyl"
+
 MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
 PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILES="${PTERO}/public/pma"
@@ -24,6 +25,7 @@ PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 
 #### ADDONS FILES ####
 
@@ -84,7 +86,6 @@ fi
 
 #### ADDON PMA_BUTTON_NAVBAR ####
 if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
-  sed -i '110d' "$PMA_ARCH"
   rm -r "$PMA_FILES"
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
@@ -94,8 +95,6 @@ fi
 
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
 if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
-  sed -i '56,58d' "$PMA_FILE"
-  sed -i '171,173d' "$PMA_FILE"
   rm -r "$PMA_NAME" "$PMA_REDIRECT_FILE"
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
@@ -118,6 +117,12 @@ if [ -f "$MC_PASTE" ]; then
   mysql -u root -e "USE panel;DROP TABLE mcpaste_variables;"
 fi
 #### ADDON MC_PASTE ####
+
+#### ADDON FILES_IN_EDITOR
+if [ -f "$FILES_IN_EDITOR" ]; then
+  rm -r "$FILES_IN_EDITOR"
+fi
+#### ADDON FILES_IN_EDITOR
 }
 
 #### Restore Backup ####
@@ -128,10 +133,10 @@ print_brake 35
 echo -e "* ${GREEN}Checking for a backup...${reset}"
 print_brake 35
 echo
-if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
     cd "$PTERO/PanelBackup"
-    unzip PanelBackup.zip
-    rm -R PanelBackup.zip
+    tar -xzvf PanelBackup.tar.gz
+    rm -R PanelBackup.tar.gz
     cp -r -- * .env "$PTERO"
     rm -r "$PTERO/PanelBackup"
   else

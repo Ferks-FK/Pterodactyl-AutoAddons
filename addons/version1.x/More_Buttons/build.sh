@@ -14,9 +14,8 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.8"
+SCRIPT_VERSION="v1.9"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
-PTERO="/var/www/pterodactyl"
 PMA=""
 MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
 
@@ -56,14 +55,14 @@ reset="\e[0m"
 check_distro() {
   if [ -f /etc/os-release ]; then
     . /etc/os-release
-    OS=$(echo "$ID")
+    OS=$(echo "$ID" | awk '{print tolower($0)}')
     OS_VER=$VERSION_ID
   elif type lsb_release >/dev/null 2>&1; then
-    OS=$(lsb_release -si)
+    OS=$(lsb_release -si | awk '{print tolower($0)}')
     OS_VER=$(lsb_release -sr)
   elif [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
-    OS=$(echo "$DISTRIB_ID")
+    OS=$(echo "$DISTRIB_ID" | awk '{print tolower($0)}')
     OS_VER=$DISTRIB_RELEASE
   elif [ -f /etc/debian_version ]; then
     OS="debian"
@@ -79,7 +78,7 @@ check_distro() {
     OS_VER=$(uname -r)
   fi
 
-  OS=$(echo "$OS")
+  OS=$(echo "$OS" | awk '{print tolower($0)}')
   OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
@@ -173,16 +172,16 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && sudo apt-get install -y zip
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs
 ;;
 esac
 
 if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && sudo yum install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn
 fi
 
 if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && sudo dnf install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs
 fi
 }
 
@@ -194,7 +193,7 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-  if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+  if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
     echo
     print_brake 45
     echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
@@ -203,11 +202,14 @@ print_brake 32
   else
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-      rm -r "$PTERO/node_modules"
+        tar -czvf PanelBackup.tar.gz --exclude "node_modules" -- * .env
+        mkdir -p PanelBackup
+        mv PanelBackup.tar.gz PanelBackup
+      else
+        tar -czvf PanelBackup.tar.gz -- * .env
+        mkdir -p PanelBackup
+        mv PanelBackup.tar.gz PanelBackup
     fi
-    mkdir -p PanelBackup
-    zip -r PanelBackup.zip -- * .env
-    mv PanelBackup.zip PanelBackup
 fi
 }
 

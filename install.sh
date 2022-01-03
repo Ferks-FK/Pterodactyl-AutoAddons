@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v1.8"
+SCRIPT_VERSION="v1.9"
 
 
 print_brake() {

@@ -14,9 +14,8 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.8"
+SCRIPT_VERSION="v1.9"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
-PTERO="/var/www/pterodactyl"
 MORE_SERVER="$PTERO/resources/views/admin/servers/index.blade.php"
 
 
@@ -144,16 +143,16 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && sudo apt-get install -y zip
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs
 ;;
 esac
 
 if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && sudo yum install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn
 fi
 
 if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && sudo dnf install -y zip
+curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs
 fi
 }
 
@@ -165,7 +164,7 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-  if [ -f "$PTERO/PanelBackup/PanelBackup.zip" ]; then
+  if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
     echo
     print_brake 45
     echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
@@ -173,9 +172,15 @@ print_brake 32
     echo
   else
     cd "$PTERO"
-    mkdir -p PanelBackup
-    zip -r PanelBackup.zip -- * .env
-    mv PanelBackup.zip PanelBackup
+    if [ -d "$PTERO/node_modules" ]; then
+        tar -czvf PanelBackup.tar.gz --exclude "node_modules" -- * .env
+        mkdir -p PanelBackup
+        mv PanelBackup.tar.gz PanelBackup
+      else
+        tar -czvf PanelBackup.tar.gz -- * .env
+        mkdir -p PanelBackup
+        mv PanelBackup.tar.gz PanelBackup
+    fi
 fi
 }
 
