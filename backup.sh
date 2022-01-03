@@ -37,6 +37,13 @@ print_brake() {
   echo ""
 }
 
+print_warning() {
+  COLOR_YELLOW='\033[1;33m'
+  COLOR_NC='\033[0m'
+  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
+  echo ""
+}
+
 
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
@@ -158,6 +165,20 @@ echo
 print_brake 50
 }
 
+#### Define Permissions ####
+
+permissions() {
+if id "www-data" &>/dev/null; then
+    chown -R www-data:www-data "$PTERO"/*
+  elif id "nginx" &>/dev/null; then
+    chown -R nginx:nginx "$PTERO"/*
+  elif id "apache" &>/dev/null; then
+    chown -R apache:apache "$PTERO"/*
+  else
+    print_warning "The correct permissions could not be set. Contact the script author"
+fi
+}
+
 
 #### Exec Script ####
 find_pterodactyl
@@ -169,6 +190,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     echo
     delete_files
     restore
+    permissions
     bye
   elif [ "$PTERO_INSTALL" == false ]; then
     echo
