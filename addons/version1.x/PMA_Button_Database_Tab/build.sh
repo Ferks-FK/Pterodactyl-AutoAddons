@@ -14,10 +14,9 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.9"
+SCRIPT_VERSION="v2.1"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
-PMA_ARCH="$PTERO/public/pma_redirect.html"
 PMA_NAME="phpmyadmin"
 
 
@@ -102,6 +101,12 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
+}
+
+#### Update Variables ####
+
+update_variables() {
+PMA_ARCH="$PTERO/public/pma_redirect.html"
 }
 
 #### Verify Compatibility ####
@@ -339,6 +344,7 @@ print_brake 50
 #### Exec Script ####
 check_distro
 find_pterodactyl
+update_variables
 if [ "$PTERO_INSTALL" == true ]; then
     echo
     print_brake 66

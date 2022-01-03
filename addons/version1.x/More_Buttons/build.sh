@@ -14,10 +14,10 @@ set -e
 ########################################################
 
 #### Variables ####
-SCRIPT_VERSION="v1.9"
+
+SCRIPT_VERSION="v2.1"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA=""
-MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
 
 
 print_brake() {
@@ -103,6 +103,12 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
+}
+
+#### Update Variables ####
+
+update_variables() {
+MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
 }
 
 #### Verify Compatibility ####
@@ -285,6 +291,7 @@ print_brake 50
 #### Exec Script ####
 check_distro
 find_pterodactyl
+update_variables
 if [ "$PTERO_INSTALL" == true ]; then
     echo
     print_brake 66

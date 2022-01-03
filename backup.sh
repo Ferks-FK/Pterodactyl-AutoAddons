@@ -81,6 +81,18 @@ if [ -d "/var/www/pterodactyl" ]; then
 fi
 }
 
+#### Update Variables ####
+
+update_variables() {
+MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
+PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
+PMA_FILES="${PTERO}/public/pma"
+PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
+PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
+PMA_NAME="${PTERO}/public/phpmyadmin"
+MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
+}
 
 #### Deletes all files installed by the script ####
 
@@ -182,6 +194,7 @@ fi
 
 #### Exec Script ####
 find_pterodactyl
+update_variables
 if [ "$PTERO_INSTALL" == true ]; then
     echo
     print_brake 60
