@@ -70,7 +70,7 @@ echo
 print_brake 70
 echo "* Pterodactyl-AutoAddons Script @ $SCRIPT_VERSION"
 echo
-echo "* Copyright (C) 2021 - 2021, Ferks-FK."
+echo "* Copyright (C) 2021 - date +%Y, Ferks-FK."
 echo "* https://github.com/Ferks-FK/Pterodactyl-AutoAddons"
 echo
 echo "* This script is not associated with the official Pterodactyl Project."
