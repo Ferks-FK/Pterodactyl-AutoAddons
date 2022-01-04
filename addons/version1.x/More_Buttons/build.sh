@@ -13,11 +13,17 @@ set -e
 #
 ########################################################
 
-#### Variables ####
+#### Fixed Variables ####
 
-SCRIPT_VERSION="v2.1"
+SCRIPT_VERSION="v2.2"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA=""
+
+#### Update Variables ####
+
+update_variables() {
+MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
+}
 
 
 print_brake() {
@@ -103,12 +109,8 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
-}
-
-#### Update Variables ####
-
-update_variables() {
-MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
+# Update the variables after detection of the pterodactyl installation #
+update_variables
 }
 
 #### Verify Compatibility ####
@@ -199,7 +201,7 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-  if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
+  if [ -f "$PTERO/PanelBackup/PanelBackup[Auto-Addons].tar.gz" ]; then
     echo
     print_brake 45
     echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
@@ -208,13 +210,13 @@ print_brake 32
   else
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf PanelBackup.tar.gz --exclude "node_modules" -- * .env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
         mkdir -p PanelBackup
-        mv PanelBackup.tar.gz PanelBackup
+        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
       else
-        tar -czvf PanelBackup.tar.gz -- * .env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
         mkdir -p PanelBackup
-        mv PanelBackup.tar.gz PanelBackup
+        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
     fi
 fi
 }
@@ -291,7 +293,6 @@ print_brake 50
 #### Exec Script ####
 check_distro
 find_pterodactyl
-update_variables
 if [ "$PTERO_INSTALL" == true ]; then
     echo
     print_brake 66

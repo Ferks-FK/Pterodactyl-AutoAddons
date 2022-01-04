@@ -12,12 +12,13 @@ set -e
 #
 ########################################################
 
-#### Variables ####
+#### Fixed Variables ####
 
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
-#### ADDONS FILES ####
+#### Update Variables ####
 
+update_variables() {
 MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
 PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILES="${PTERO}/public/pma"
@@ -26,8 +27,7 @@ PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
-
-#### ADDONS FILES ####
+}
 
 
 print_brake() {
@@ -79,19 +79,8 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
-}
-
-#### Update Variables ####
-
-update_variables() {
-MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
-PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
-PMA_FILES="${PTERO}/public/pma"
-PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
-PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
-PMA_NAME="${PTERO}/public/phpmyadmin"
-MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
-FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
+# Update the variables after detection of the pterodactyl installation #
+update_variables
 }
 
 #### Deletes all files installed by the script ####
@@ -152,10 +141,10 @@ print_brake 35
 echo -e "* ${GREEN}Checking for a backup...${reset}"
 print_brake 35
 echo
-if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
+if [ -f "$PTERO/PanelBackup/PanelBackup[Auto-Addons].tar.gz" ]; then
     cd "$PTERO/PanelBackup"
-    tar -xzvf PanelBackup.tar.gz
-    rm -R PanelBackup.tar.gz
+    tar -xzvf "PanelBackup[Auto-Addons].tar.gz"
+    rm -R "PanelBackup[Auto-Addons].tar.gz"
     cp -r -- * .env "$PTERO"
     rm -r "$PTERO/PanelBackup"
   else
@@ -187,14 +176,13 @@ if id "www-data" &>/dev/null; then
   elif id "apache" &>/dev/null; then
     chown -R apache:apache "$PTERO"/*
   else
-    print_warning "The correct permissions could not be set. Contact the script author"
+    print_warning "The correct permissions could not be set. Contact the script author."
 fi
 }
 
 
 #### Exec Script ####
 find_pterodactyl
-update_variables
 if [ "$PTERO_INSTALL" == true ]; then
     echo
     print_brake 60

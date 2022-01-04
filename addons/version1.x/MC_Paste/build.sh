@@ -13,8 +13,9 @@ set -e
 #
 ########################################################
 
-#### Variables ####
-SCRIPT_VERSION="v1.9"
+#### Fixed Variables ####
+
+SCRIPT_VERSION="v2.2"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 CONFIG_LINK="https://github.com/Ferks-FK/Pterodactyl-AutoAddons/blob/main/addons/version1.x/MC_Paste/CONFIG.MD"
 
@@ -171,7 +172,7 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-  if [ -f "$PTERO/PanelBackup/PanelBackup.tar.gz" ]; then
+  if [ -f "$PTERO/PanelBackup/PanelBackup[Auto-Addons].tar.gz" ]; then
     echo
     print_brake 45
     echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
@@ -180,13 +181,13 @@ print_brake 32
   else
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf PanelBackup.tar.gz --exclude "node_modules" -- * .env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
         mkdir -p PanelBackup
-        mv PanelBackup.tar.gz PanelBackup
+        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
       else
-        tar -czvf PanelBackup.tar.gz -- * .env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
         mkdir -p PanelBackup
-        mv PanelBackup.tar.gz PanelBackup
+        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
     fi
 fi
 }
