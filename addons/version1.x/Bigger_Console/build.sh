@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.2"
+SCRIPT_VERSION="v2.3"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 
@@ -171,7 +171,7 @@ echo
 print_brake 32
 echo -e "* ${GREEN}Performing security backup...${reset}"
 print_brake 32
-  if [ -f "$PTERO/PanelBackup/PanelBackup[Auto-Addons].tar.gz" ]; then
+  if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
     echo
     print_brake 45
     echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
@@ -181,12 +181,12 @@ print_brake 32
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
         tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
-        mkdir -p PanelBackup
-        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
+        mkdir -p "PanelBackup[Auto-Addons]"
+        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
       else
         tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
-        mkdir -p PanelBackup
-        mv "PanelBackup[Auto-Addons].tar.gz" PanelBackup
+        mkdir -p "PanelBackup[Auto-Addons]"
+        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
     fi
 fi
 }
