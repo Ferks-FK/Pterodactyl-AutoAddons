@@ -15,10 +15,14 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 CONFIG_LINK="https://github.com/Ferks-FK/Pterodactyl-AutoAddons/blob/main/addons/version1.x/MC_Paste/CONFIG.MD"
 
+update_variables() {
+MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
+BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
+}
 
 print_brake() {
   for ((n = 0; n < $1; n++)); do
@@ -101,6 +105,8 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
+# Update the variables after detection of the pterodactyl installation #
+update_variables
 }
 
 #### Verify Compatibility ####
@@ -244,6 +250,32 @@ verify_installation() {
   fi
 }
 
+#### Check if another conflicting addon is installed ####
+
+check_conflict() {
+echo
+print_brake 66
+echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
+print_brake 66
+echo
+sleep 2
+if [ -f "$MORE_BUTTONS" ]; then
+    echo
+    print_brake 70
+    echo -e "* ${red}The addon ${YELLOW}More Buttons ${red}is already installed, aborting...${reset}"
+    print_brake 70
+    echo
+    exit 1
+  elif grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
+    echo
+    print_brake 61
+    echo -e "* ${red}The addon ${YELLOW}Bigger Console ${red}is already installed, aborting...${reset}"
+    print_brake 61
+    echo
+    exit 1
+fi
+}
+
 #### Panel Production ####
 
 production() {
@@ -251,6 +283,7 @@ echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
+echo
 if [ -d "$PTERO/node_modules" ]; then
     cd "$PTERO"
     yarn add strip-ansi
@@ -288,6 +321,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     print_brake 66
     echo
     compatibility
+    check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
     echo

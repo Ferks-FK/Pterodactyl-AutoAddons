@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA=""
 
@@ -23,6 +23,8 @@ PMA=""
 
 update_variables() {
 MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
+MC_PASTE="$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
 }
 
 
@@ -257,6 +259,32 @@ verify_installation() {
   fi
 }
 
+#### Check if another conflicting addon is installed ####
+
+check_conflict() {
+echo
+print_brake 66
+echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
+print_brake 66
+echo
+sleep 2
+if [ -f "$MC_PASTE" ]; then
+    echo
+    print_brake 55
+    echo -e "* ${red}The addon ${YELLOW}MC Paste ${red}is already installed, aborting...${reset}"
+    print_brake 55
+    echo
+    exit 1
+  elif grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
+    echo
+    print_brake 61
+    echo -e "* ${red}The addon ${YELLOW}Bigger Console ${red}is already installed, aborting...${reset}"
+    print_brake 61
+    echo
+    exit 1
+fi
+}
+
 #### Panel Production ####
 
 production() {
@@ -264,6 +292,7 @@ echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
+echo
 if [ -d "$PTERO/node_modules" ]; then
     cd "$PTERO"
     yarn add @emotion/react
@@ -300,6 +329,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     print_brake 66
     echo
     compatibility
+    check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
     echo

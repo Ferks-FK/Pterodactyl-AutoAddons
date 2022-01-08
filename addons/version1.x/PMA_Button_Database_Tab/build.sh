@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 PMA_NAME="phpmyadmin"
@@ -24,6 +24,7 @@ PMA_NAME="phpmyadmin"
 
 update_variables() {
 PMA_ARCH="$PTERO/public/pma_redirect.html"
+PMA_BUTTON_NAVBAR="$PTERO/resources/scripts/routers/ServerRouter.tsx"
 }
 
 
@@ -296,10 +297,29 @@ production
 bye
 }
 
+#### Check if another conflicting addon is installed ####
+
+check_conflict() {
+echo
+print_brake 66
+echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
+print_brake 66
+echo
+sleep 2
+if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
+    echo
+    print_brake 70
+    echo -e "* ${red}The addon ${YELLOW}PMA Button Navbar ${red}is already installed, aborting...${reset}"
+    print_brake 70
+    echo
+    exit 1
+fi
+}
+
 #### Check if it is already installed ####
 
 verify_installation() {
-  if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
+  if [ -f "$PMA_ARCH" ]; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
@@ -354,6 +374,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     print_brake 66
     echo
     compatibility
+    check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
     echo

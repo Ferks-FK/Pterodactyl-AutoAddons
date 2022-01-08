@@ -15,14 +15,16 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
+PMA_NAME="phpmyadmin"
 
 #### Update Variables ####
 
 update_variables() {
 PMA_ARCH="$PTERO/resources/scripts/routers/ServerRouter.tsx"
+PMA_BUTTON_DATABASE_TAB="$PTERO/public/pma_redirect.html"
 }
 
 
@@ -201,14 +203,14 @@ print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
 cd "$PTERO/public"
-mkdir -p pma
-cd pma
+mkdir -p "$PMA_NAME"
+cd "$PMA_NAME"
 mkdir -p tmp && chmod 777 tmp -R
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * "$PTERO/public/pma"
-cd "$PTERO/public/pma"
+mv -- * "$PTERO/public/$PMA_NAME"
+cd "$PTERO/public/$PMA_NAME"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 rm -r config.sample.inc.php
 curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/config.inc.php
@@ -219,7 +221,7 @@ curl -sSLo PMA_Button_NavBar.tar.gz https://raw.githubusercontent.com/Ferks-FK/P
 tar -xzvf PMA_Button_NavBar.tar.gz
 cd PMA_Button_NavBar
 mv -f resources/scripts/routers/ServerRouter.tsx "$PMA_ARCH"
-sed -i -e 's@<code>@<a href="/pma" target="_blank">PhpMyAdmin</a>@g' "$PMA_ARCH"
+sed -i -e "s@<code>@<a href='/$PMA_NAME' target='_blank'>PhpMyAdmin</a>@g" "$PMA_ARCH"
 cd "$PTERO"
 rm -r temp
 }
@@ -244,8 +246,8 @@ chmod -R 660 /etc/phpmyadmin
 #### Configure PMA ####
 
 configure() {
-FILE="$PTERO/public/pma/config.inc.php"
-SQL="$PTERO/public/pma/sql"
+FILE="$PTERO/public/$PMA_NAME/config.inc.php"
+SQL="$PTERO/public/$PMA_NAME/sql"
 MYSQL_DB="phpmyadmin"
 MYSQL_USER="pma"
 MYSQL_PASSWORD="$(openssl rand -base64 16)"
@@ -282,10 +284,29 @@ centos)
 esac
 }
 
+#### Check if another conflicting addon is installed ####
+
+check_conflict() {
+echo
+print_brake 66
+echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
+print_brake 66
+echo
+sleep 2
+if [ -f "$PMA_BUTTON_DATABASE_TAB" ]; then
+    echo
+    print_brake 70
+    echo -e "* ${red}The addon ${YELLOW}PMA Button Database Tab ${red}is already installed, aborting...${reset}"
+    print_brake 70
+    echo
+    exit 1
+fi
+}
+
 #### Check if it is already installed ####
 
 verify_installation() {
-  if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
+  if grep "<a href='/$PMA_NAME' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
@@ -342,6 +363,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     print_brake 66
     echo
     compatibility
+    check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
     echo

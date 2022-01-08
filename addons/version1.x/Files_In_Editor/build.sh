@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 #### Update Variables ####
@@ -244,6 +244,7 @@ echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
+echo
 if [ -d "$PTERO/node_modules" ]; then
     cd "$PTERO"
     yarn build:production
