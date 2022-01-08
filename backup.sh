@@ -92,7 +92,7 @@ fi
 #### ADDON MORE_BUTONS ####
 
 #### ADDON PMA_BUTTON_NAVBAR ####
-if grep "<a href='/$PMA_NAME' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
+if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
   rm -r "$PMA_NAME"
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
