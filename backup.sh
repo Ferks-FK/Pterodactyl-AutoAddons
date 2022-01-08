@@ -141,12 +141,12 @@ print_brake 35
 echo -e "* ${GREEN}Checking for a backup...${reset}"
 print_brake 35
 echo
-if [ -f "$PTERO/PanelBackup/PanelBackup[Auto-Addons].tar.gz" ]; then
-    cd "$PTERO/PanelBackup"
+if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
+    cd "$PTERO/PanelBackup[Auto-Addons]"
     tar -xzvf "PanelBackup[Auto-Addons].tar.gz"
     rm -R "PanelBackup[Auto-Addons].tar.gz"
     cp -r -- * .env "$PTERO"
-    rm -r "$PTERO/PanelBackup"
+    rm -r "$PTERO/PanelBackup[Auto-Addons]"
   else
     print_brake 45
     echo -e "* ${red}There was no backup to restore, Aborting...${reset}"
