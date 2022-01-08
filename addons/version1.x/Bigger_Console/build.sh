@@ -15,8 +15,14 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
+
+update_variables() {
+BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
+MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
+MC_PASTE="$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php"
+}
 
 
 print_brake() {
@@ -100,6 +106,8 @@ if [ -d "/var/www/pterodactyl" ]; then
   else
     PTERO_INSTALL=false
 fi
+# Update the variables after detection of the pterodactyl installation #
+update_variables
 }
 
 #### Verify Compatibility ####
@@ -215,19 +223,44 @@ rm -r temp
 #### Check if it is already installed ####
 
 verify_installation() {
-BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
-  if grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
-      print_brake 61
-      echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
-      print_brake 61
-      exit 1
-    else
-      dependencies
-      backup
-      download_files
-      production
-      bye
-  fi
+if grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
+    print_brake 61
+    echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
+    print_brake 61
+    exit 1
+  else
+    dependencies
+    backup
+    download_files
+    production
+    bye
+fi
+}
+
+#### Check if another conflicting addon is installed ####
+
+check_conflict() {
+echo
+print_brake 66
+echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
+print_brake 66
+echo
+sleep 2
+if [ -f "$MORE_BUTTONS" ]; then
+    echo
+    print_brake 70
+    echo -e "* ${red}The addon ${YELLOW}More Buttons ${red}is already installed, aborting...${reset}"
+    print_brake 70
+    echo
+    exit 1
+  elif [ -f "$MC_PASTE" ]; then
+    echo
+    print_brake 55
+    echo -e "* ${red}The addon ${YELLOW}MC Paste ${red}is already installed, aborting...${reset}"
+    print_brake 55
+    echo
+    exit 1
+fi
 }
 
 #### Panel Production ####
@@ -272,6 +305,7 @@ if [ "$PTERO_INSTALL" == true ]; then
     print_brake 66
     echo
     compatibility
+    check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
     echo
