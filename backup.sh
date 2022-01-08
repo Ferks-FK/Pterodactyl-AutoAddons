@@ -21,7 +21,6 @@ SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 update_variables() {
 MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
 PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
-PMA_FILES="${PTERO}/public/pma"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
@@ -94,7 +93,7 @@ fi
 
 #### ADDON PMA_BUTTON_NAVBAR ####
 if grep '<a href="/pma" target="_blank">PhpMyAdmin</a>' "$PMA_ARCH" &>/dev/null; then
-  rm -r "$PMA_FILES"
+  rm -r "$PMA_NAME"
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
   mysql -u root -e "DROP DATABASE phpmyadmin;"
