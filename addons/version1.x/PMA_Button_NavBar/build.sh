@@ -342,14 +342,13 @@ echo -e -n "* Do you want to create an administrator user for phpmyadmin access?
 read -r ASK_CREATE_USER
 if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   CREATE_USER=true
-  while [ "$USERNAME" == "" ]; do
+  while [ "$USERNAME" == "" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ]; do
     echo -e "* Username to be created: "
     read -r USERNAME
     [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, panel or mysql)"
     [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
   done
-  password_input PASSWORD "* The password for access: "
-  [ -z "$PASSWORD" ] && print_error "Your password cannot be empty!"
+  password_input PASSWORD "* The password for access: " "Your password cannot be empty!"
   # Continue Script #
   create_user
   # Write the username to a file for the backup script to proceed later #
