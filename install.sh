@@ -114,7 +114,7 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 }
 
 test() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/Big_Update/addons/version1.x/PMA_Button_NavBar/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/Big_Update/addons/version1.x/PMA_Button_Database_Tab/build.sh)
 }
 
 
@@ -129,7 +129,7 @@ while [ "$done" == false ]; do
     "Install Bigger Console (Only 1.6.6)"
     "Install Files In Editor (Only 1.6.6)"
     "Restore Backup Test"
-    "Test PMA Button Navbar"
+    "Test PMA Button Database Tab"
     
     
     "Cancel Installation"

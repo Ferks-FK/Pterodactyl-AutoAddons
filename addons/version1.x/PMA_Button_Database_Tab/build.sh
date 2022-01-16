@@ -18,13 +18,21 @@ set -e
 SCRIPT_VERSION="v2.5"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
-PMA_NAME="phpmyadmin"
+MYSQL_DB="phpmyadmin"
+MYSQL_USER="pma"
+MYSQL_PASSWORD="$(openssl rand -base64 16)"
+KEY="$(openssl rand -base64 32)"
+CREATE_USER=false
+USERNAME=""
+PASSWORD=""
 
 #### Update Variables ####
 
 update_variables() {
 PMA_ARCH="$PTERO/public/pma_redirect.html"
 PMA_BUTTON_NAVBAR="$PTERO/resources/scripts/routers/ServerRouter.tsx"
+FILE="$PTERO/public/$MYSQL_DB/config.inc.php"
+SQL="$PTERO/public/$MYSQL_DB/sql"
 }
 
 
@@ -36,15 +44,53 @@ print_brake() {
 }
 
 print_warning() {
-  COLOR_YELLOW='\033[1;33m'
-  COLOR_NC='\033[0m'
-  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
+  YELLOW="\033[1;33m"
+  reset="\e[0m"
+  echo -e "* ${YELLOW}WARNING${reset}: $1"
   echo ""
 }
 
+print_error() {
+  red='\033[0;31m'
+  reset="\e[0m"
+
+  echo ""
+  echo -e "* ${red}ERROR${reset}: $1"
+  echo ""
+}
 
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
+}
+
+password_input() {
+  local __resultvar=$1
+  local result=''
+  local default="$4"
+
+  while [ -z "$result" ]; do
+    echo -n "* ${2}"
+
+    while IFS= read -r -s -n1 char; do
+      [[ -z $char ]] && {
+        printf '\n'
+        break
+      }
+      if [[ $char == $'\x7f' ]]; then
+        if [ -n "$result" ]; then
+          [[ -n $result ]] && result=${result%?}
+          printf '\b \b'
+        fi
+      else
+        result+=$char
+        printf '*'
+      fi
+    done
+    [ -z "$result" ] && [ -n "$default" ] && result="$default"
+    [ -z "$result" ] && print_error "${3}"
+  done
+
+  eval "$__resultvar="'$result'""
 }
 
 
@@ -161,16 +207,16 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 ;;
 esac
 
 if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 fi
 
 if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 fi
 }
 
@@ -210,13 +256,13 @@ print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
 cd "$PTERO/public"
-mkdir -p "$PMA_NAME"
-cd "$PMA_NAME"
+mkdir -p "$MYSQL_DB"
+cd "$MYSQL_DB"
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * "$PTERO/public/$PMA_NAME"
-cd "$PTERO/public/$PMA_NAME"
+mv -- * "$PTERO/public/$MYSQL_DB"
+cd "$PTERO/public/$MYSQL_DB"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 rm -r config.sample.inc.php
 curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
@@ -255,13 +301,7 @@ chmod -R 660 /etc/phpmyadmin
 #### Configure PMA ####
 
 configure() {
-FILE="$PTERO/public/$PMA_NAME/config.inc.php"
-SQL="$PTERO/public/$PMA_NAME/sql"
-MYSQL_DB="phpmyadmin"
-MYSQL_USER="pma"
-MYSQL_PASSWORD="$(openssl rand -base64 16)"
 if [ -f "$FILE" ]; then
-  KEY="$(openssl rand -base64 32)"
   sed -i -e "s@<key>@$KEY@g" "$FILE"
   sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
 fi
@@ -291,10 +331,59 @@ centos)
   mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
 ;;
 esac
-sed -i -e "s@<pma>@$PMA_NAME@g" "$PMA_ARCH"
-#### Continue Script ####
-production
-bye
+sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
+}
+
+#### Ask the user if he wants to create the admin user ####
+
+ask_create_user() {
+echo
+echo -e -n "* Do you want to create an administrator user for phpmyadmin access? (y/N): "
+read -r ASK_CREATE_USER
+if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
+  CREATE_USER=true
+  while [ "$USERNAME" == "" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ]; do
+    echo -e -n "* Username to be created: "
+    read -r USERNAME
+    [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, panel or mysql)"
+    [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
+  done
+  password_input PASSWORD "The password for access: " "Your password cannot be empty!"
+  # Write the username to a file for the backup script to proceed later #
+  echo "$USERNAME" >> "$PTERO/user.txt"
+fi
+}
+
+#### Create the administrator user for phpmyadmin access ####
+
+create_user() {
+if [ "$CREATE_USER" == true ]; then
+  echo
+  print_brake 33
+  echo -e "* ${GREEN}Creating administrator user...${reset}"
+  print_brake 33
+  echo
+
+  case "$OS" in
+  debian | ubuntu)
+
+  mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  ;;
+  centos)
+  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+
+  mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+  mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+  mysql -u root -e "FLUSH PRIVILEGES;"
+  ;;
+  esac
+  elif [ "$CREATE_USER" == false ]; then
+    print_warning "You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
+    sleep 5
+fi
 }
 
 #### Check if another conflicting addon is installed ####
@@ -330,6 +419,10 @@ verify_installation() {
       download_files
       set_permissions
       configure
+      ask_create_user
+      create_user
+      production
+      bye
   fi
 }
 

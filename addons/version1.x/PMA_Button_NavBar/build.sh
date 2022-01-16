@@ -352,8 +352,6 @@ if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   # Write the username to a file for the backup script to proceed later #
   echo "$USERNAME" >> "$PTERO/user.txt"
 fi
-# Continue Script #
-create_user
 }
 
 #### Create the administrator user for phpmyadmin access ####
@@ -422,6 +420,7 @@ verify_installation() {
       set_permissions
       configure
       ask_create_user
+      create_user
       production
       bye
   fi

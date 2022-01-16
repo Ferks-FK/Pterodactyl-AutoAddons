@@ -24,9 +24,9 @@ PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
-if [ -f "${PTERO}/user.txt" ]; then
-  USERNAME="$(cat "${PTERO}/user.txt")"
-fi
+if [ -f "${PTERO}/user.txt" ]; then     ################################################################################################
+  USERNAME="$(cat "${PTERO}/user.txt")" # First check if the file exists, then set the variable, it is used for both phpmyadmin addons.
+fi                                      ################################################################################################
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 }
@@ -113,6 +113,10 @@ if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
   mysql -u root -e "DROP DATABASE phpmyadmin;"
+  if [ -f "$PTERO/user.txt" ]; then
+    mysql -u root -e "DROP USER '${USERNAME}'@'%';"
+    rm -r "$PTERO/user.txt"
+  fi
 fi
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
 
