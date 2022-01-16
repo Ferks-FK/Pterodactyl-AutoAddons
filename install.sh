@@ -128,6 +128,7 @@ while [ "$done" == false ]; do
     "Install MC Paste (Only 1.6.6)"
     "Install Bigger Console (Only 1.6.6)"
     "Install Files In Editor (Only 1.6.6)"
+    "Restore Backup Test"
     "Test PMA Button Navbar"
     
     
@@ -143,6 +144,7 @@ while [ "$done" == false ]; do
     "MC_Paste"
     "Bigger_Console"
     "Files_In_Editor"
+    "bkptest"
     "test"
     
     
