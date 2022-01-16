@@ -342,10 +342,10 @@ echo -e -n "* Do you want to create an administrator user for phpmyadmin access?
 read -r ASK_CREATE_USER
 if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   CREATE_USER=true
-  while [ "$USERNAME" == "" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ]; do
+  while [ -z "$USERNAME" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "pterodactyluser" ] || [ "$USERNAME" == "panel" ]; do
     echo -e -n "* Username to be created: "
     read -r USERNAME
-    [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, panel or mysql)"
+    [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "pterodactyluser" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, pterodactyluser, panel or mysql)"
     [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
   done
   password_input PASSWORD "The password for access: " "Your password cannot be empty!"
