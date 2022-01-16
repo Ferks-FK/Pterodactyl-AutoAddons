@@ -383,7 +383,7 @@ if [ "$CREATE_USER" == true ]; then
   ;;
   esac
   elif [ "$CREATE_USER" == false ]; then
-    print_warning "* You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
+    print_warning "You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
     sleep 5
 fi
 }
