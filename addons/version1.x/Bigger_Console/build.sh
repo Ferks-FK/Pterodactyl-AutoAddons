@@ -286,7 +286,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}Bigger Console${GREEN} was successfully installed."
+echo -e "${GREEN}* The addon ${YELLOW}Bigger Console${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"

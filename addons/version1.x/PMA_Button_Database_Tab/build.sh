@@ -396,7 +396,7 @@ echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed.
 print_brake 66
 echo
 sleep 2
-if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
+if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
     echo
     print_brake 70
     echo -e "* ${red}The addon ${YELLOW}PMA Button Navbar ${red}is already installed, aborting...${reset}"
@@ -450,7 +450,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}PMA Button Database Tab${GREEN} was successfully installed."
+echo -e "${GREEN}* The addon ${YELLOW}PMA Button Database Tab${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
