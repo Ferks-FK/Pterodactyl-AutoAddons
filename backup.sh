@@ -24,6 +24,7 @@ PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
+USERNAME="$(cat "${PTERO}/user.txt")"
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 }
@@ -97,6 +98,8 @@ if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/de
   rm -r /etc/phpmyadmin
   mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
   mysql -u root -e "DROP DATABASE phpmyadmin;"
+  mysql -u root -e "DROP USER '${USERNAME}'@'%';"
+  rm -r "$PTERO/user.txt"
 fi
 #### ADDON PMA_BUTTON_NAVBAR ####
 

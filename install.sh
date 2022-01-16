@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v2.6"
+SCRIPT_VERSION="v2.7"
 
 
 print_brake() {
@@ -32,11 +32,11 @@ reset="\e[0m"
 red='\033[0;31m'
 
 error() {
-  COLOR_RED='\033[0;31m'
-  COLOR_NC='\033[0m'
+  red='\033[0;31m'
+  reset="\e[0m"
 
   echo ""
-  echo -e "* ${COLOR_RED}ERROR${COLOR_NC}: $1"
+  echo -e "* ${red}ERROR${reset}: $1"
   echo ""
 }
 
@@ -109,6 +109,10 @@ Files_In_Editor() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/build.sh)
 }
 
+test() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/Big_Update/addons/version1.x/PMA_Button_NavBar/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
@@ -120,6 +124,7 @@ while [ "$done" == false ]; do
     "Install MC Paste (Only 1.6.6)"
     "Install Bigger Console (Only 1.6.6)"
     "Install Files In Editor (Only 1.6.6)"
+    "Test PMA Button Navbar"
     
     
     "Cancel Installation"
@@ -134,6 +139,7 @@ while [ "$done" == false ]; do
     "MC_Paste"
     "Bigger_Console"
     "Files_In_Editor"
+    "test"
     
     
     "cancel"

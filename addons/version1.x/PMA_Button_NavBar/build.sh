@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.5"
+SCRIPT_VERSION="v2.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 MYSQL_DB="phpmyadmin"
@@ -43,6 +43,14 @@ print_brake() {
   echo ""
 }
 
+print_warning() {
+  YELLOW="\033[1;33m"
+  reset="\e[0m"
+  echo ""
+  echo -e "* ${YELLOW}WARNING${reset}: $1"
+  echo ""
+}
+
 print_error() {
   red='\033[0;31m'
   reset="\e[0m"
@@ -65,24 +73,18 @@ password_input() {
   while [ -z "$result" ]; do
     echo -n "* ${2}"
 
-    # modified from https://stackoverflow.com/a/22940001
     while IFS= read -r -s -n1 char; do
       [[ -z $char ]] && {
         printf '\n'
         break
-      }                               # ENTER pressed; output \n and break.
-      if [[ $char == $'\x7f' ]]; then # backspace was pressed
-        # Only if variable is not empty
+      }
+      if [[ $char == $'\x7f' ]]; then
         if [ -n "$result" ]; then
-          # Remove last char from output variable.
           [[ -n $result ]] && result=${result%?}
-          # Erase '*' to the left.
           printf '\b \b'
         fi
       else
-        # Add typed char to output variable.
         result+=$char
-        # Print '*' in its stead.
         printf '*'
       fi
     done
@@ -171,7 +173,7 @@ sleep 2
 DIR="$PTERO/config/app.php"
 VERSION="1.6.6"
 if [ -f "$DIR" ]; then
-  CODE=$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
+  CODE="$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")"
     if [ "$VERSION" == "$CODE" ]; then
         echo
         print_brake 23
@@ -340,7 +342,7 @@ echo -e -n "* Do you want to create an administrator user for phpmyadmin access?
 read -r ASK_CREATE_USER
 if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   CREATE_USER=true
-  while [ "$USERNAME" == "" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ]; do
+  while [ "$USERNAME" == "" ]; do
     echo -e "* Username to be created: "
     read -r USERNAME
     [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, panel or mysql)"
@@ -348,6 +350,10 @@ if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   done
   password_input PASSWORD "* The password for access: "
   [ -z "$PASSWORD" ] && print_error "Your password cannot be empty!"
+  # Continue Script #
+  create_user
+  # Write the username to a file for the backup script to proceed later #
+  echo "$USERNAME" >> "$PTERO/user.txt"
 fi
 }
 
@@ -377,6 +383,9 @@ if [ "$CREATE_USER" == true ]; then
   mysql -u root -e "FLUSH PRIVILEGES;"
   ;;
   esac
+  elif [ "$CREATE_USER" == false ]; then
+    print_warning "* You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
+    sleep 5
 fi
 }
 
@@ -414,7 +423,6 @@ verify_installation() {
       set_permissions
       configure
       ask_create_user
-      create_user
       production
       bye
   fi
