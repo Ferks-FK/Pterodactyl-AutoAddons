@@ -319,8 +319,6 @@ debian | ubuntu)
   mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
 ;;
 centos)
-  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
 
   mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
   mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
@@ -372,8 +370,6 @@ if [ "$CREATE_USER" == true ]; then
   mysql -u root -e "FLUSH PRIVILEGES;"
   ;;
   centos)
-  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
 
   mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
   mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
