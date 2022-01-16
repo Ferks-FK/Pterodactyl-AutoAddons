@@ -109,6 +109,10 @@ Files_In_Editor() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/build.sh)
 }
 
+bkptest() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/Big_Update/backup.sh)
+}
+
 test() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/Big_Update/addons/version1.x/PMA_Button_NavBar/build.sh)
 }
