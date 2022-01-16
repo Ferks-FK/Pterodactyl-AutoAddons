@@ -349,11 +349,11 @@ if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
     [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
   done
   password_input PASSWORD "The password for access: " "Your password cannot be empty!"
-  # Continue Script #
-  create_user
   # Write the username to a file for the backup script to proceed later #
   echo "$USERNAME" >> "$PTERO/user.txt"
 fi
+# Continue Script #
+create_user
 }
 
 #### Create the administrator user for phpmyadmin access ####
