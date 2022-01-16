@@ -209,15 +209,11 @@ case "$OS" in
 debian | ubuntu)
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 ;;
+centos)
+[ "$OS_VER_MAJOR" == "7" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+[ "$OS_VER_MAJOR" == "8" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y curl dirmngr ca-certificates
+;;
 esac
-
-if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
-
-if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
 }
 
 
@@ -319,8 +315,8 @@ debian | ubuntu)
   mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
 ;;
 centos)
-  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+  #[ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+  #[ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
 
   mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
   mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
@@ -373,8 +369,8 @@ if [ "$CREATE_USER" == true ]; then
   mysql -u root -e "FLUSH PRIVILEGES;"
   ;;
   centos)
-  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+  #[ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
+  #[ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
 
   mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
   mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
