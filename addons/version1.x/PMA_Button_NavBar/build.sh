@@ -341,6 +341,7 @@ if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
     echo
     rm -r "$PTERO/check_user.txt"
   else
+    rm -r "$PTERO/check_user.txt"
     return 1
 fi
 }
