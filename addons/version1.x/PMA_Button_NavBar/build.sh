@@ -332,6 +332,8 @@ centos)
 esac
 }
 
+#### Check if the user you entered already exists in the database ####
+
 create_user_check() {
 mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
 sed -i '1d' "$PTERO/check_user.txt"
