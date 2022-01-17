@@ -335,7 +335,9 @@ create_user_check() {
 mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
 sed -i '1d' "$PTERO/check_user.txt"
 if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
+    echo
     echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
+    echo
     rm -r "$PTERO/check_user.txt"
   else
     return 1

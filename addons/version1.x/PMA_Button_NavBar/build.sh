@@ -332,6 +332,19 @@ centos)
 esac
 }
 
+create_user_check() {
+mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+sed -i '1d' "$PTERO/check_user.txt"
+if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
+    echo
+    echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
+    echo
+    rm -r "$PTERO/check_user.txt"
+  else
+    return 1
+fi
+}
+
 #### Ask the user if he wants to create the admin user ####
 
 ask_create_user() {
@@ -340,10 +353,9 @@ echo -e -n "* Do you want to create an administrator user for phpmyadmin access?
 read -r ASK_CREATE_USER
 if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   CREATE_USER=true
-  while [ -z "$USERNAME" ] || [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "pterodactyluser" ] || [ "$USERNAME" == "panel" ]; do
+  while [ -z "$USERNAME" ] || create_user_check; do
     echo -e -n "* Username to be created: "
     read -r USERNAME
-    [ "$USERNAME" == "root" ] || [ "$USERNAME" == "mysql" ] || [ "$USERNAME" == "admin" ] || [ "$USERNAME" == "pterodactyl" ] || [ "$USERNAME" == "pterodactyluser" ] || [ "$USERNAME" == "panel" ] && print_error "Don't use reserved names! (root, admin, pterodactyl, pterodactyluser, panel or mysql)"
     [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
   done
   password_input PASSWORD "The password for access: " "Your password cannot be empty!"
