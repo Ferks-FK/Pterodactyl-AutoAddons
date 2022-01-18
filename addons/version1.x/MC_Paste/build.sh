@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.5"
+SCRIPT_VERSION="v2.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 CONFIG_LINK="https://github.com/Ferks-FK/Pterodactyl-AutoAddons/blob/main/addons/version1.x/MC_Paste/CONFIG.MD"
 

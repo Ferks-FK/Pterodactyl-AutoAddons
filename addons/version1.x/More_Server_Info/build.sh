@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.3"
+SCRIPT_VERSION="v2.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 #### Update Variables ####
