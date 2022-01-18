@@ -25,6 +25,8 @@ KEY="$(openssl rand -base64 32)"
 CREATE_USER=false
 USERNAME=""
 PASSWORD=""
+MYSQL_ROOT_PASS=false
+MYSQL_PASS=""
 
 #### Update Variables ####
 
@@ -211,15 +213,11 @@ case "$OS" in
 debian | ubuntu)
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
 ;;
+centos)
+[ "$OS_VER_MAJOR" == "7" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+[ "$OS_VER_MAJOR" == "8" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+;;
 esac
-
-if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
-
-if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
 }
 
 
@@ -299,6 +297,20 @@ esac
 chmod -R 660 /etc/phpmyadmin
 }
 
+#### Check that the mysql root user has a password ####
+
+check_pass_mysql() {
+echo
+echo -e -n "* [${YELLOW}ATTENTION${reset}] Does the root user of your system have a password to access mysql? (y/N): "
+read -r ASK_MYSQL_PASSWORD
+if [[ "$ASK_MYSQL_PASSWORD" =~ [Yy] ]]; then
+  password_input MYSQL_PASS "Please enter password now: " "Your password cannot be empty!"
+  MYSQL_ROOT_PASS=true
+  # Write the password to a file for the backup script to proceed later #
+  echo "$MYSQL_PASS" >> "$PTERO/pass.txt"
+fi
+}
+
 #### Configure PMA ####
 
 configure() {
@@ -306,42 +318,45 @@ if [ -f "$FILE" ]; then
   sed -i -e "s@<key>@$KEY@g" "$FILE"
   sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
 fi
-case "$OS" in
-debian | ubuntu)
-
-  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  cd "$SQL"
-  mysql -u root "$MYSQL_DB" < create_tables.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-;;
-centos)
-
-  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  cd "$SQL"
-  mysql -u root "$MYSQL_DB" < create_tables.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-;;
-esac
+if [ "$MYSQL_ROOT_PASS" == true ]; then
+    mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -p"$MYSQL_PASS" -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -p"$MYSQL_PASS" -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -p"$MYSQL_PASS" -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < create_tables.sql
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+  elif [ "$MYSQL_ROOT_PASS" == false ]; then
+    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root "$MYSQL_DB" < create_tables.sql
+    mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+fi
+sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
+# Write the result of the variable to a file for the backup script to proceed later #
+echo "$MYSQL_ROOT_PASS" >> "$PTERO/check_variable.txt"
 }
 
 #### Check if the user you entered already exists in the database ####
 
 create_user_check() {
-mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+if [ ! -e "$PTERO/check_user.txt" ]; then
+  if [ "$MYSQL_ROOT_PASS" == true ]; then
+      mysql -u root -p"$MYSQL_PASS" -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+    elif [ "$MYSQL_ROOT_PASS" == false ]; then
+      mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+  fi
 sed -i '1d' "$PTERO/check_user.txt"
+fi
 if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
     echo
     echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
     echo
-    rm -r "$PTERO/check_user.txt"
   else
     rm -r "$PTERO/check_user.txt"
     return 1
@@ -376,21 +391,15 @@ if [ "$CREATE_USER" == true ]; then
   echo -e "* ${GREEN}Creating administrator user...${reset}"
   print_brake 33
   echo
-
-  case "$OS" in
-  debian | ubuntu)
-
-  mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
-  mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  ;;
-  centos)
-
-  mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
-  mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  ;;
-  esac
+  if [ "$MYSQL_ROOT_PASS" == true ]; then
+      mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+      mysql -u root -p"$MYSQL_PASS" -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+      mysql -u root -p"$MYSQL_PASS" -e "FLUSH PRIVILEGES;"
+    elif [ "$MYSQL_ROOT_PASS" == false ]; then
+      mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+      mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+      mysql -u root -e "FLUSH PRIVILEGES;"
+  fi
   elif [ "$CREATE_USER" == false ]; then
     echo
     print_warning "You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
@@ -431,6 +440,7 @@ verify_installation() {
       download_files
       set_permissions
       configure
+      check_pass_mysql
       ask_create_user
       create_user
       production

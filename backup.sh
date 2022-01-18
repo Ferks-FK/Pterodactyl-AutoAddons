@@ -24,9 +24,15 @@ PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
-if [ -f "${PTERO}/user.txt" ]; then     ################################################################################################
-  USERNAME="$(cat "${PTERO}/user.txt")" # First check if the file exists, then set the variable, it is used for both phpmyadmin addons.
-fi                                      ################################################################################################
+if [ -f "${PTERO}/user.txt" ]; then               ########################################################
+  USERNAME="$(cat "${PTERO}/user.txt")"           #
+fi                                                # 
+if [ -f "${PTERO}/pass.txt" ]; then               # First check if the file exists, then set the variable
+  PASSWORD="$(cat "${PTERO}/pass.txt")"           # it is used for both phpmyadmin and mc-paste addons.
+fi                                                # 
+if [ -f "${PTERO}/check_variable.txt" ]; then     #
+  GET_INFO="$(cat "${PTERO}/check_variable.txt")" #
+fi                                                ########################################################
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 }
@@ -40,9 +46,9 @@ print_brake() {
 }
 
 print_warning() {
-  COLOR_YELLOW='\033[1;33m'
-  COLOR_NC='\033[0m'
-  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
+  YELLOW="\033[1;33m"
+  red='\033[0;31m'
+  echo -e "* ${YELLOW}WARNING${reset}: $1"
   echo ""
 }
 
@@ -98,12 +104,23 @@ fi
 if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
   rm -r "$PMA_NAME"
   rm -r /etc/phpmyadmin
-  mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
-  mysql -u root -e "DROP DATABASE phpmyadmin;"
-  if [ -f "$PTERO/user.txt" ]; then
-    mysql -u root -e "DROP USER '${USERNAME}'@'%';"
-    rm -r "$PTERO/user.txt"
+  if [ "$GET_INFO" == true ]; then
+    if [ -f "$PTERO/user.txt" ]; then
+      mysql -u root -p"$PASSWORD" -e "DROP USER '${USERNAME}'@'%';"
+      rm -r "$PTERO/user.txt"
+    fi
+      mysql -u root -p"$PASSWORD" -e "DROP USER 'pma'@'127.0.0.1';"
+      mysql -u root -p"$PASSWORD" -e "DROP DATABASE phpmyadmin;"
+    elif [ "$GET_INFO" == false ]; then
+      if [ -f "$PTERO/user.txt" ]; then
+        mysql -u root -e "DROP USER '${USERNAME}'@'%';"
+        rm -r "$PTERO/user.txt"
+      fi
+        mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
+        mysql -u root -e "DROP DATABASE phpmyadmin;"
   fi
+  rm -r "$PTERO/check_variable.txt"
+  rm -r "$PTERO/pass.txt"
 fi
 #### ADDON PMA_BUTTON_NAVBAR ####
 
@@ -111,12 +128,23 @@ fi
 if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   rm -r "$PMA_NAME" "$PMA_REDIRECT_FILE"
   rm -r /etc/phpmyadmin
-  mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
-  mysql -u root -e "DROP DATABASE phpmyadmin;"
-  if [ -f "$PTERO/user.txt" ]; then
-    mysql -u root -e "DROP USER '${USERNAME}'@'%';"
-    rm -r "$PTERO/user.txt"
+  if [ "$GET_INFO" == true ]; then
+    if [ -f "$PTERO/user.txt" ]; then
+      mysql -u root -p"$PASSWORD" -e "DROP USER '${USERNAME}'@'%';"
+      rm -r "$PTERO/user.txt"
+    fi
+      mysql -u root -p"$PASSWORD" -e "DROP USER 'pma'@'127.0.0.1';"
+      mysql -u root -p"$PASSWORD" -e "DROP DATABASE phpmyadmin;"
+    elif [ "$GET_INFO" == false ]; then
+      if [ -f "$PTERO/user.txt" ]; then
+        mysql -u root -e "DROP USER '${USERNAME}'@'%';"
+        rm -r "$PTERO/user.txt"
+      fi
+        mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
+        mysql -u root -e "DROP DATABASE phpmyadmin;"
   fi
+  rm -r "$PTERO/check_variable.txt"
+  rm -r "$PTERO/pass.txt"
 fi
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
 
@@ -132,7 +160,13 @@ if [ -f "$MC_PASTE" ]; then
   rm -r "$PTERO/resources/scripts/api/server/shareServerLog.ts"
   rm -r "$PTERO/resources/scripts/components/server/McPaste.tsx"
   rm -r "$PTERO/resources/views/admin/mcpaste"
-  mysql -u root -e "USE panel;DROP TABLE mcpaste_variables;"
+  if [ "$GET_INFO" == true ]; then
+      mysql -u root -p"$PASSWORD" -e "USE panel;DROP TABLE mcpaste_variables;"
+    elif [ "$GET_INFO" == false ]; then
+      mysql -u root -e "USE panel;DROP TABLE mcpaste_variables;"
+  fi
+  rm -r "$PTERO/check_variable.txt"
+  rm -r "$PTERO/pass.txt"
 fi
 #### ADDON MC_PASTE ####
 
