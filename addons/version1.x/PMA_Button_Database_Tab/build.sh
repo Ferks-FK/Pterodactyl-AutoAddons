@@ -15,16 +15,26 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.5"
+SCRIPT_VERSION="v2.7"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
-PMA_NAME="phpmyadmin"
+MYSQL_DB="phpmyadmin"
+MYSQL_USER="pma"
+MYSQL_PASSWORD="$(openssl rand -base64 16)"
+KEY="$(openssl rand -base64 32)"
+CREATE_USER=false
+USERNAME=""
+PASSWORD=""
+MYSQL_ROOT_PASS=false
+MYSQL_PASS=""
 
 #### Update Variables ####
 
 update_variables() {
 PMA_ARCH="$PTERO/public/pma_redirect.html"
 PMA_BUTTON_NAVBAR="$PTERO/resources/scripts/routers/ServerRouter.tsx"
+FILE="$PTERO/public/$MYSQL_DB/config.inc.php"
+SQL="$PTERO/public/$MYSQL_DB/sql"
 }
 
 
@@ -36,15 +46,53 @@ print_brake() {
 }
 
 print_warning() {
-  COLOR_YELLOW='\033[1;33m'
-  COLOR_NC='\033[0m'
-  echo -e "* ${COLOR_YELLOW}WARNING${COLOR_NC}: $1"
+  YELLOW="\033[1;33m"
+  reset="\e[0m"
+  echo -e "* ${YELLOW}WARNING${reset}: $1"
   echo ""
 }
 
+print_error() {
+  red='\033[0;31m'
+  reset="\e[0m"
+
+  echo ""
+  echo -e "* ${red}ERROR${reset}: $1"
+  echo ""
+}
 
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
+}
+
+password_input() {
+  local __resultvar=$1
+  local result=''
+  local default="$4"
+
+  while [ -z "$result" ]; do
+    echo -n "* ${2}"
+
+    while IFS= read -r -s -n1 char; do
+      [[ -z $char ]] && {
+        printf '\n'
+        break
+      }
+      if [[ $char == $'\x7f' ]]; then
+        if [ -n "$result" ]; then
+          [[ -n $result ]] && result=${result%?}
+          printf '\b \b'
+        fi
+      else
+        result+=$char
+        printf '*'
+      fi
+    done
+    [ -z "$result" ] && [ -n "$default" ] && result="$default"
+    [ -z "$result" ] && print_error "${3}"
+  done
+
+  eval "$__resultvar="'$result'""
 }
 
 
@@ -161,17 +209,13 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+;;
+centos)
+[ "$OS_VER_MAJOR" == "7" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+[ "$OS_VER_MAJOR" == "8" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y curl dirmngr ca-certificates
 ;;
 esac
-
-if [ "$OS_VER_MAJOR" == "7" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
-
-if [ "$OS_VER_MAJOR" == "8" ]; then
-curl -sL https://rpm.nodesource.com/setup_14.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-fi
 }
 
 
@@ -206,17 +250,18 @@ fi
 #### Download Files ####
 
 download_files() {
+echo
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
 cd "$PTERO/public"
-mkdir -p "$PMA_NAME"
-cd "$PMA_NAME"
+mkdir -p "$MYSQL_DB"
+cd "$MYSQL_DB"
 curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * "$PTERO/public/$PMA_NAME"
-cd "$PTERO/public/$PMA_NAME"
+mv -- * "$PTERO/public/$MYSQL_DB"
+cd "$PTERO/public/$MYSQL_DB"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 rm -r config.sample.inc.php
 curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
@@ -252,49 +297,114 @@ esac
 chmod -R 660 /etc/phpmyadmin
 }
 
+#### Check that the mysql root user has a password ####
+
+check_pass_mysql() {
+echo
+echo -e -n "* [${YELLOW}ATTENTION${reset}] Does the root user of your system have a password to access mysql? (y/N): "
+read -r ASK_MYSQL_PASSWORD
+if [[ "$ASK_MYSQL_PASSWORD" =~ [Yy] ]]; then
+  password_input MYSQL_PASS "Please enter password now: " "Your password cannot be empty!"
+  MYSQL_ROOT_PASS=true
+  # Write the password to a file for the backup script to proceed later #
+  echo "$MYSQL_PASS" >> "$PTERO/pass.txt"
+fi
+}
+
 #### Configure PMA ####
 
 configure() {
-FILE="$PTERO/public/$PMA_NAME/config.inc.php"
-SQL="$PTERO/public/$PMA_NAME/sql"
-MYSQL_DB="phpmyadmin"
-MYSQL_USER="pma"
-MYSQL_PASSWORD="$(openssl rand -base64 16)"
 if [ -f "$FILE" ]; then
-  KEY="$(openssl rand -base64 32)"
   sed -i -e "s@<key>@$KEY@g" "$FILE"
   sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
 fi
-case "$OS" in
-debian | ubuntu)
+if [ "$MYSQL_ROOT_PASS" == true ]; then
+    mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -p"$MYSQL_PASS" -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -p"$MYSQL_PASS" -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -p"$MYSQL_PASS" -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < create_tables.sql
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+  elif [ "$MYSQL_ROOT_PASS" == false ]; then
+    mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
+    mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
+    mysql -u root -e "FLUSH PRIVILEGES;"
+    cd "$SQL"
+    mysql -u root "$MYSQL_DB" < create_tables.sql
+    mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
+    mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+fi
+sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
+# Write the result of the variable to a file for the backup script to proceed later #
+echo "$MYSQL_ROOT_PASS" >> "$PTERO/check_variable.txt"
+}
 
-  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  cd "$SQL"
-  mysql -u root "$MYSQL_DB" < create_tables.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-;;
-centos)
-  [ "$OS_VER_MAJOR" == "7" ] && mariadb-secure-installation
-  [ "$OS_VER_MAJOR" == "8" ] && mysql_secure_installation
+#### Check if the user you entered already exists in the database ####
 
-  mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-  mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
-  mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
-  mysql -u root -e "FLUSH PRIVILEGES;"
-  cd "$SQL"
-  mysql -u root "$MYSQL_DB" < create_tables.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-  mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-;;
-esac
-sed -i -e "s@<pma>@$PMA_NAME@g" "$PMA_ARCH"
-#### Continue Script ####
-production
-bye
+create_user_check() {
+if [ ! -e "$PTERO/check_user.txt" ]; then
+  if [ "$MYSQL_ROOT_PASS" == true ]; then
+      mysql -u root -p"$MYSQL_PASS" -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+    elif [ "$MYSQL_ROOT_PASS" == false ]; then
+      mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+  fi
+sed -i '1d' "$PTERO/check_user.txt"
+fi
+if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
+    echo
+    echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
+    echo
+  else
+    rm -r "$PTERO/check_user.txt"
+    return 1
+fi
+}
+
+#### Ask the user if he wants to create the admin user ####
+
+ask_create_user() {
+echo
+echo -e -n "* Do you want to create an administrator user for phpmyadmin access? (y/N): "
+read -r ASK_CREATE_USER
+if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
+  CREATE_USER=true
+  while [ -z "$USERNAME" ] || create_user_check; do
+    echo -e -n "* Username to be created: "
+    read -r USERNAME
+    [ -z "$USERNAME" ] && print_error "Your user cannot be empty!"
+  done
+  password_input PASSWORD "The password for access: " "Your password cannot be empty!"
+  # Write the username to a file for the backup script to proceed later #
+  echo "$USERNAME" >> "$PTERO/user.txt"
+fi
+}
+
+#### Create the administrator user for phpmyadmin access ####
+
+create_user() {
+if [ "$CREATE_USER" == true ]; then
+  echo
+  print_brake 33
+  echo -e "* ${GREEN}Creating administrator user...${reset}"
+  print_brake 33
+  echo
+  if [ "$MYSQL_ROOT_PASS" == true ]; then
+      mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+      mysql -u root -p"$MYSQL_PASS" -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+      mysql -u root -p"$MYSQL_PASS" -e "FLUSH PRIVILEGES;"
+    elif [ "$MYSQL_ROOT_PASS" == false ]; then
+      mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
+      mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
+      mysql -u root -e "FLUSH PRIVILEGES;"
+  fi
+  elif [ "$CREATE_USER" == false ]; then
+    echo
+    print_warning "You have chosen not to set up a user for phpmyadmin, please create one manually for access, or use one created by the panel (servers)."
+    sleep 5
+fi
 }
 
 #### Check if another conflicting addon is installed ####
@@ -306,7 +416,7 @@ echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed.
 print_brake 66
 echo
 sleep 2
-if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
+if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
     echo
     print_brake 70
     echo -e "* ${red}The addon ${YELLOW}PMA Button Navbar ${red}is already installed, aborting...${reset}"
@@ -329,7 +439,12 @@ verify_installation() {
       backup
       download_files
       set_permissions
+      check_pass_mysql
       configure
+      ask_create_user
+      create_user
+      production
+      bye
   fi
 }
 
@@ -340,6 +455,7 @@ echo
 print_brake 25
 echo -e "* ${GREEN}Producing panel...${reset}"
 print_brake 25
+echo
 if [ -d "$PTERO/node_modules" ]; then
     cd "$PTERO"
     yarn build:production
@@ -355,7 +471,7 @@ fi
 bye() {
 print_brake 50
 echo
-echo -e "* ${GREEN}The addon ${YELLOW}PMA Button Database Tab${GREEN} was successfully installed."
+echo -e "${GREEN}* The addon ${YELLOW}PMA Button Database Tab${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
