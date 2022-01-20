@@ -3,6 +3,10 @@
 </h1>
 </br>
 
+![Discord](https://img.shields.io/discord/876934115302178876?label=DISCORD&style=for-the-badge)
+![Downloads](https://img.shields.io/github/downloads/Ferks-FK/Pterodactyl-AutoAddons/total?style=for-the-badge)
+![Contributors](https://img.shields.io/github/contributors/Ferks-FK/Pterodactyl-AutoAddons?style=for-the-badge)
+
 This is a addons installation script for the [Pterodactyl Panel](https://github.com/pterodactyl/panel).<br>
 The script installs addons that are compatible with their respective panel versions.
 <br>
