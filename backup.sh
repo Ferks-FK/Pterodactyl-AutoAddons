@@ -25,15 +25,15 @@ PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
-if [ -f "${INFORMATIONS}/user.txt" ]; then               ########################################################
-  USERNAME="$(cat "${INFORMATIONS}/user.txt")"           #
-fi                                                       # 
-if [ -f "${INFORMATIONS}/pass.txt" ]; then               # First check if the file exists, then set the variable
-  PASSWORD="$(cat "${INFORMATIONS}/pass.txt")"           # it is used for both phpmyadmin and mc-paste addons.
-fi                                                       # 
-if [ -f "${INFORMATIONS}/check_variable.txt" ]; then     #
-  GET_INFO="$(cat "${INFORMATIONS}/check_variable.txt")" #
-fi                                                       ########################################################
+if [ -f "${INFORMATIONS}/user.txt" ]; then
+  USERNAME="$(cat "${INFORMATIONS}/user.txt")"
+fi
+if [ -f "${INFORMATIONS}/pass.txt" ]; then
+  PASSWORD="$(cat "${INFORMATIONS}/pass.txt")"
+fi
+if [ -f "${INFORMATIONS}/check_variable.txt" ]; then
+  GET_INFO="$(cat "${INFORMATIONS}/check_variable.txt")"
+fi
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 }
