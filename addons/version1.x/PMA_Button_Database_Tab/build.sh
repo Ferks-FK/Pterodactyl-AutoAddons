@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.8"
+SCRIPT_VERSION="v2.9"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 MYSQL_DB="phpmyadmin"
@@ -27,6 +27,7 @@ USERNAME=""
 PASSWORD=""
 MYSQL_ROOT_PASS=false
 MYSQL_PASS=""
+INFORMATIONS="/var/log/Pterodactyl-AutoAddons-informations"
 
 #### Update Variables ####
 
@@ -306,8 +307,6 @@ read -r ASK_MYSQL_PASSWORD
 if [[ "$ASK_MYSQL_PASSWORD" =~ [Yy] ]]; then
   password_input MYSQL_PASS "Please enter password now: " "Your password cannot be empty!"
   MYSQL_ROOT_PASS=true
-  # Write the password to a file for the backup script to proceed later #
-  echo "$MYSQL_PASS" >> "$PTERO/pass.txt"
 fi
 }
 
@@ -338,27 +337,25 @@ if [ "$MYSQL_ROOT_PASS" == true ]; then
     mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
 fi
 sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
-# Write the result of the variable to a file for the backup script to proceed later #
-echo "$MYSQL_ROOT_PASS" >> "$PTERO/check_variable.txt"
 }
 
 #### Check if the user you entered already exists in the database ####
 
 create_user_check() {
-if [ ! -e "$PTERO/check_user.txt" ]; then
+if [ ! -e "$INFORMATIONS/check_user.txt" ]; then
   if [ "$MYSQL_ROOT_PASS" == true ]; then
-      mysql -u root -p"$MYSQL_PASS" -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+      mysql -u root -p"$MYSQL_PASS" -e "SELECT User FROM mysql.user;" >> "$INFORMATIONS/check_user.txt"
     elif [ "$MYSQL_ROOT_PASS" == false ]; then
-      mysql -u root -e "SELECT User FROM mysql.user;" >> "$PTERO/check_user.txt"
+      mysql -u root -e "SELECT User FROM mysql.user;" >> "$INFORMATIONS/check_user.txt"
   fi
-sed -i '1d' "$PTERO/check_user.txt"
+sed -i '1d' "$INFORMATIONS/check_user.txt"
 fi
-if grep "$USERNAME" "$PTERO/check_user.txt" &>/dev/null; then
+if grep "$USERNAME" "$INFORMATIONS/check_user.txt" &>/dev/null; then
     echo
     echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
     echo
   else
-    rm -r "$PTERO/check_user.txt"
+    rm -r "$INFORMATIONS/check_user.txt"
     return 1
 fi
 }
@@ -378,7 +375,7 @@ if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   done
   password_input PASSWORD "The password for access: " "Your password cannot be empty!"
   # Write the username to a file for the backup script to proceed later #
-  echo "$USERNAME" >> "$PTERO/user.txt"
+  echo "$USERNAME" >> "/var/log/Pterodactyl-AutoAddons-informations/user.txt"
 fi
 }
 
@@ -440,12 +437,25 @@ verify_installation() {
       download_files
       set_permissions
       check_pass_mysql
+      write_informations
       configure
       ask_create_user
       create_user
       production
       bye
   fi
+}
+
+#### Write the informations to a file for a safety check of the backup script ####
+
+write_informations() {
+mkdir -p /var/log/Pterodactyl-AutoAddons-informations
+# Write the password to a file for the backup script to proceed later #
+echo "$MYSQL_PASS" >> "/var/log/Pterodactyl-AutoAddons-informations/pass.txt"
+# Write the result of the variable to a file for the backup script to proceed later #
+echo "$MYSQL_ROOT_PASS" >> "/var/log/Pterodactyl-AutoAddons-informations/check_variable.txt"
+# Just one warning :D #
+echo "Don't delete anything inside this folder, it is automatically deleted by the script later, so don't worry about that." >> "/var/log/Pterodactyl-AutoAddons-informations/README.txt"
 }
 
 #### Panel Production ####

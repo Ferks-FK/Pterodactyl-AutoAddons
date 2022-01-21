@@ -19,20 +19,21 @@ SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 #### Update Variables ####
 
 update_variables() {
+INFORMATIONS="/var/log/Pterodactyl-AutoAddons-informations"
 MORE_BUTTONS="${PTERO}/resources/scripts/components/server/MoreButtons.tsx"
 PMA_ARCH="${PTERO}/resources/scripts/routers/ServerRouter.tsx"
 PMA_FILE="${PTERO}/resources/scripts/components/server/databases/DatabaseRow.tsx"
 PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
-if [ -f "${PTERO}/user.txt" ]; then               ########################################################
-  USERNAME="$(cat "${PTERO}/user.txt")"           #
-fi                                                # 
-if [ -f "${PTERO}/pass.txt" ]; then               # First check if the file exists, then set the variable
-  PASSWORD="$(cat "${PTERO}/pass.txt")"           # it is used for both phpmyadmin and mc-paste addons.
-fi                                                # 
-if [ -f "${PTERO}/check_variable.txt" ]; then     #
-  GET_INFO="$(cat "${PTERO}/check_variable.txt")" #
-fi                                                ########################################################
+if [ -f "${INFORMATIONS}/user.txt" ]; then
+  USERNAME="$(cat "${INFORMATIONS}/user.txt")"
+fi
+if [ -f "${INFORMATIONS}/pass.txt" ]; then
+  PASSWORD="$(cat "${INFORMATIONS}/pass.txt")"
+fi
+if [ -f "${INFORMATIONS}/check_variable.txt" ]; then
+  GET_INFO="$(cat "${INFORMATIONS}/check_variable.txt")"
+fi
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
 }
@@ -105,22 +106,21 @@ if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/de
   rm -r "$PMA_NAME"
   rm -r /etc/phpmyadmin
   if [ "$GET_INFO" == true ]; then
-    if [ -f "$PTERO/user.txt" ]; then
+    if [ -f "$INFORMATIONS/user.txt" ]; then
       mysql -u root -p"$PASSWORD" -e "DROP USER '${USERNAME}'@'%';"
-      rm -r "$PTERO/user.txt"
+      rm -r "$INFORMATIONS/user.txt"
     fi
       mysql -u root -p"$PASSWORD" -e "DROP USER 'pma'@'127.0.0.1';"
       mysql -u root -p"$PASSWORD" -e "DROP DATABASE phpmyadmin;"
     elif [ "$GET_INFO" == false ]; then
-      if [ -f "$PTERO/user.txt" ]; then
+      if [ -f "$INFORMATIONS/user.txt" ]; then
         mysql -u root -e "DROP USER '${USERNAME}'@'%';"
-        rm -r "$PTERO/user.txt"
+        rm -r "$INFORMATIONS/user.txt"
       fi
         mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
         mysql -u root -e "DROP DATABASE phpmyadmin;"
   fi
-  rm -r "$PTERO/check_variable.txt"
-  rm -r "$PTERO/pass.txt"
+  rm -r "$INFORMATIONS"
 fi
 #### ADDON PMA_BUTTON_NAVBAR ####
 
@@ -129,22 +129,21 @@ if grep 'location.replace("/pma_redirect.html");' "$PMA_FILE" &>/dev/null; then
   rm -r "$PMA_NAME" "$PMA_REDIRECT_FILE"
   rm -r /etc/phpmyadmin
   if [ "$GET_INFO" == true ]; then
-    if [ -f "$PTERO/user.txt" ]; then
+    if [ -f "$INFORMATIONS/user.txt" ]; then
       mysql -u root -p"$PASSWORD" -e "DROP USER '${USERNAME}'@'%';"
-      rm -r "$PTERO/user.txt"
+      rm -r "$INFORMATIONS/user.txt"
     fi
       mysql -u root -p"$PASSWORD" -e "DROP USER 'pma'@'127.0.0.1';"
       mysql -u root -p"$PASSWORD" -e "DROP DATABASE phpmyadmin;"
     elif [ "$GET_INFO" == false ]; then
-      if [ -f "$PTERO/user.txt" ]; then
+      if [ -f "$INFORMATIONS/user.txt" ]; then
         mysql -u root -e "DROP USER '${USERNAME}'@'%';"
-        rm -r "$PTERO/user.txt"
+        rm -r "$INFORMATIONS/user.txt"
       fi
         mysql -u root -e "DROP USER 'pma'@'127.0.0.1';"
         mysql -u root -e "DROP DATABASE phpmyadmin;"
   fi
-  rm -r "$PTERO/check_variable.txt"
-  rm -r "$PTERO/pass.txt"
+  rm -r "$INFORMATIONS"
 fi
 #### ADDON PMA_BUTTON_DATABASE_TAB ####
 
@@ -165,8 +164,7 @@ if [ -f "$MC_PASTE" ]; then
     elif [ "$GET_INFO" == false ]; then
       mysql -u root -e "USE panel;DROP TABLE mcpaste_variables;"
   fi
-  rm -r "$PTERO/check_variable.txt"
-  rm -r "$PTERO/pass.txt"
+  rm -r "$INFORMATIONS"
 fi
 #### ADDON MC_PASTE ####
 
