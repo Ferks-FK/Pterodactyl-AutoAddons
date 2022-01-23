@@ -12,7 +12,7 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v2.9"
+SCRIPT_VERSION="v3.0"
 
 
 print_brake() {
@@ -113,13 +113,13 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 while [ "$done" == false ]; do
   options=(
     "Restore Panel Backup (To remove some addon and restore your old panel.)"
-    "Install More Buttons (Only 1.6.6)"
-    "Install More Server Info (Only 1.6.6)"
-    "Install PMA Button NavBar (Only 1.6.6)"
-    "Install PMA Button Database Tab (Only 1.6.6)"
-    "Install MC Paste (Only 1.6.6)"
-    "Install Bigger Console (Only 1.6.6)"
-    "Install Files In Editor (Only 1.6.6)"
+    "Install More Buttons (Only 1.6.6 and 1.7.0)"
+    "Install More Server Info (Only 1.6.6 and 1.7.0)"
+    "Install PMA Button NavBar (Only 1.6.6 and 1.7.0)"
+    "Install PMA Button Database Tab (Only 1.6.6 and 1.7.0)"
+    "Install MC Paste (Only 1.6.2, 1.6.6 and 1.7.0)"
+    "Install Bigger Console (Only 1.6.6 and 1.7.0)"
+    "Install Files In Editor (Only 1.6.6 and 1.7.0)"
     
     
     "Cancel Installation"

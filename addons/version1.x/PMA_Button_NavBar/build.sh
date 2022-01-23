@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v2.9"
+SCRIPT_VERSION="v3.0"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 MYSQL_DB="phpmyadmin"
@@ -36,6 +36,8 @@ PMA_ARCH="$PTERO/resources/scripts/routers/ServerRouter.tsx"
 PMA_BUTTON_DATABASE_TAB="$PTERO/public/pma_redirect.html"
 FILE="$PTERO/public/$MYSQL_DB/config.inc.php"
 SQL="$PTERO/public/$MYSQL_DB/sql"
+CONFIG_FILE="$PTERO/config/app.php"
+PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
 }
 
 
@@ -173,34 +175,29 @@ echo -e "* ${GREEN}Checking if the addon is compatible with your panel...${reset
 print_brake 57
 echo
 sleep 2
-DIR="$PTERO/config/app.php"
-VERSION="1.7.0"
-if [ -f "$DIR" ]; then
-  CODE="$(cat "$DIR" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")"
-    if [ "$VERSION" == "$CODE" ]; then
-        echo
-        print_brake 23
-        echo -e "* ${GREEN}Compatible Version!${reset}"
-        print_brake 23
-        echo
-      else
-        echo
-        print_brake 24
-        echo -e "* ${red}Incompatible Version!${reset}"
-        print_brake 24
-        echo
-        exit 1
-    fi
-  else
-    echo
-    print_brake 26
-    echo -e "* ${red}The file doesn't exist!${reset}"
-    print_brake 26
-    echo
-    exit 1
+if [ -f "$CONFIG_FILE" ]; then
+  if [ "$PANEL_VERSION" == "1.6.6" ]; then
+      echo
+      print_brake 23
+      echo -e "* ${GREEN}Compatible Version!${reset}"
+      print_brake 23
+      echo
+    elif [ "$PANEL_VERSION" == "1.7.0" ]; then
+      echo
+      print_brake 23
+      echo -e "* ${GREEN}Compatible Version!${reset}"
+      print_brake 23
+      echo
+    else
+      echo
+      print_brake 24
+      echo -e "* ${red}Incompatible Version!${reset}"
+      print_brake 24
+      echo
+      exit 1
+  fi
 fi
 }
-
 
 #### Install Dependencies ####
 
