@@ -10,7 +10,7 @@ This is a addons installation script for the [Pterodactyl Panel](https://github.
 The script installs addons that are compatible with their respective panel versions.
 <br>
 
-<img src="https://user-images.githubusercontent.com/69549678/148104320-11bb2de7-8ab2-47a2-aa79-2ac37e358bad.PNG"></img>
+<img src="https://user-images.githubusercontent.com/69549678/150687469-2c3f57c0-765d-4460-9b37-369213f97ee7.PNG"></img>
 
 
 <h1 align="center">Support</h1>
