@@ -3,7 +3,7 @@
 set -e
 
 ########################################################
-# 
+#
 #         Pterodactyl-AutoAddons Installation
 #
 #         Created and maintained by Ferks-FK
@@ -89,6 +89,10 @@ More_Server_Info() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/build.sh)
 }
 
+Server_Router_Icons() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Server_Router_Icons/build.sh)
+}
+
 PMA_Button_NavBar() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/build.sh)
 }
@@ -115,43 +119,45 @@ while [ "$done" == false ]; do
     "Restore Panel Backup (To remove some addon and restore your old panel.)"
     "Install More Buttons (Only 1.6.6 and 1.7.0)"
     "Install More Server Info (Only 1.6.6 and 1.7.0)"
+    "Install Server Router Icons (Only 1.6.6 and 1.7.0)"
     "Install PMA Button NavBar (Only 1.6.6 and 1.7.0)"
     "Install PMA Button Database Tab (Only 1.6.6 and 1.7.0)"
     "Install MC Paste (Only 1.6.2, 1.6.6 and 1.7.0)"
     "Install Bigger Console (Only 1.6.6 and 1.7.0)"
     "Install Files In Editor (Only 1.6.6 and 1.7.0)"
-    
-    
+
+
     "Cancel Installation"
   )
-  
+
   actions=(
     "Backup"
     "More_Buttons"
     "More_Server_Info"
+    "Server_Router_Icons"
     "PMA_Button_NavBar"
     "PMA_Button_Database_Tab"
     "MC_Paste"
     "Bigger_Console"
     "Files_In_Editor"
-    
-    
+
+
     "cancel"
   )
-  
+
   echo "* Which addon do you want to install?"
   echo
-  
+
   for i in "${!options[@]}"; do
     echo "[$i] ${options[$i]}"
   done
-  
+
   echo
   echo -n "* Input 0-$((${#actions[@]} - 1)): "
   read -r action
-  
+
   [ -z "$action" ] && error "Input is required" && continue
-  
+
   valid_input=("$(for ((i = 0; i <= ${#actions[@]} - 1; i += 1)); do echo "${i}"; done)")
   [[ ! " ${valid_input[*]} " =~ ${action} ]] && error "Invalid option"
   [[ " ${valid_input[*]} " =~ ${action} ]] && done=true && eval "${actions[$action]}"
