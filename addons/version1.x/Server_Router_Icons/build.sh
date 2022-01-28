@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-#SCRIPT_VERSION="v3.1"
+#SCRIPT_VERSION="v3.2"
 SUPPORT_LINK="https://discord.gg/2vmFnKtBPQ"
 
 #### Update Variables ####
@@ -198,7 +198,7 @@ curl -o "$SERVER_ROUTER" https://bin.harryw.link/raw/baqazehowu
 #### Check if it is already installed ####
 
 verify_installation() {
-  if grep "faTerminal" "$SERVER_ROUTER"; then
+  if grep "faTerminal" "$SERVER_ROUTER" &>/dev/null; then
       print_brake 61
       echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
       print_brake 61
@@ -207,10 +207,29 @@ verify_installation() {
       dependencies
       backup
       download_files
+      production
       bye
   fi
 }
 
+#### Panel Production ####
+
+production() {
+echo
+print_brake 21
+echo -e "* ${GREEN}Producing panel...${reset}"
+print_brake 21
+echo
+if [ -d "$PTERO/node_modules" ]; then
+    cd "$PTERO"
+    yarn build:production
+  else
+    npm i -g yarn
+    cd "$PTERO"
+    yarn install
+    yarn build:production
+fi
+}
 
 bye() {
 print_brake 50
