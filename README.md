@@ -36,7 +36,7 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 **Example:** ```# bash <(curl -s...```
 
 
-<h1 align="center">Addons for the 1.6.6 panel</h1></br>
+<h1 align="center">Addons for the 1.x panel</h1></br>
 
 <h1 align="center">More Buttons</h1>
 
