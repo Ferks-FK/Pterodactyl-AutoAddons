@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v3.0"
+#SCRIPT_VERSION="v3.1"
 SUPPORT_LINK="https://discord.gg/2vmFnKtBPQ"
 
 #### Update Variables ####
@@ -192,7 +192,7 @@ download_files() {
 print_brake 25
 echo -e "* ${GREEN}Downloading files...${reset}"
 print_brake 25
-curl -o $SERVER_ROUTER https://bin.harryw.link/raw/baqazehowu
+curl -o "$SERVER_ROUTER" https://bin.harryw.link/raw/baqazehowu
 }
 
 #### Check if it is already installed ####
