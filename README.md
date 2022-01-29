@@ -135,11 +135,10 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 
 
 
-
 <h1 align="center">Development</h1>
 
 This script was created and is being maintained by [Ferks - FK](https://github.com/Ferks-FK).
 
 <h1 align="center">Extra informations</h1>
 
-If you have a theme, and would like to add it to the script, feel free to suggest it in the support group.
+If you have a addon, and would like to add it to the script, feel free to suggest it in the support group.
