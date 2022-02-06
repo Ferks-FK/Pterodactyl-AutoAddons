@@ -15,7 +15,7 @@ set -e
 
 #### Fixed Variables ####
 
-SCRIPT_VERSION="v3.0"
+SCRIPT_VERSION="v3.3"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 PMA_VERSION="5.1.1"
 MYSQL_DB="phpmyadmin"
@@ -208,11 +208,11 @@ print_brake 30
 echo
 case "$OS" in
 debian | ubuntu)
-curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl dirmngr apt-transport-https lsb-release ca-certificates
+curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl
 ;;
 centos)
-[ "$OS_VER_MAJOR" == "7" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && yum install -y install -y curl dirmngr apt-transport-https lsb-release ca-certificates
-[ "$OS_VER_MAJOR" == "8" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && dnf install -y curl dirmngr ca-certificates
+[ "$OS_VER_MAJOR" == "7" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo yum install -y nodejs yarn && sudo yum install -y curl
+[ "$OS_VER_MAJOR" == "8" ] && curl -sL https://rpm.nodesource.com/setup_16.x | sudo -E bash - && sudo dnf install -y nodejs && sudo dnf install -y curl
 ;;
 esac
 }
