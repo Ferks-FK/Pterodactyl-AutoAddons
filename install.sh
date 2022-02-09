@@ -113,6 +113,10 @@ Files_In_Editor() {
 bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/build.sh)
 }
 
+PhpMyAdmin() {
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/features/PhpMyAdmin/build.sh)
+}
+
 
 while [ "$done" == false ]; do
   options=(
@@ -125,6 +129,7 @@ while [ "$done" == false ]; do
     "Install MC Paste (Only 1.6.2, 1.6.6 and 1.7.0)"
     "Install Bigger Console (Only 1.6.6 and 1.7.0)"
     "Install Files In Editor (Only 1.6.6 and 1.7.0)"
+    "Install PhpMyAdmin"
 
 
     "Cancel Installation"
@@ -140,6 +145,7 @@ while [ "$done" == false ]; do
     "MC_Paste"
     "Bigger_Console"
     "Files_In_Editor"
+    "PhpMyAdmin"
 
 
     "cancel"
