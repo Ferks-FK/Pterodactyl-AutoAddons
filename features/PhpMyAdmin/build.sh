@@ -20,10 +20,14 @@ PHPMYADMIN_VERSION="5.1.2"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 
+# Set functions to false by default #
+
+CONFIGURE_UFW=false
+CONFIGURE_UFW_CMD=false
+
 #### Github URL's ####
 
 GITHUB="https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/$SCRIPT_VERSION"
-
 
 #### Functions for visual styles ####
 
@@ -185,8 +189,6 @@ fi
 }
 
 ask_ufw() {
-CONFIGURE_UFW=false
-CONFIGURE_UFW_CMD=false
 print_warning "If you want phpmyadmin to be accessed externally, allow the script to configure the firewall.
 Otherwise you may have problems accessing it outside your local network."
 echo -n "* Would you like to open the ports on the firewall for external access? (y/N): "
@@ -504,7 +506,7 @@ echo
 echo -e "* PhpMyAdmin Version (${YELLOW}$PHPMYADMIN_VERSION${reset}) with web-server (${YELLOW}$WEB_SERVER${reset}) in OS (${YELLOW}$OS${reset})"
 echo -e "* PhpMyAdmin Login: $USERNAME"
 echo -e "* PhpMyAdmin Password: (censored)"
-echo -e "* Email for ssl certificate: $email"
+[ "$CONFIGURE_SSL" == true ] && echo -e "* Email Certificate: $email"
 echo -e "* Hostname/FQDN: $FQDN"
 echo -e "* Configure Firewall: $CONFIGURE_UFW"
 echo -e "* Configure SSL: $CONFIGURE_SSL"
