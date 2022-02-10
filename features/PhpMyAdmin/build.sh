@@ -491,11 +491,11 @@ while [ -z "$FQDN" ]; do
 done
 
 case "$FQDN" in
-  [a-zA-Z])
+  [a-zA-Z]*)
   echo "O FQDN É UMA STRING!"
   exit 1
   ;;
-  [0-9])
+  [0-9]*)
   echo "O FQDN SÃO NUMEROS!"
   exit 1
 esac
