@@ -336,6 +336,7 @@ download_files() {
 echo "* Downloading files from phpmyadmin..."
 
 mkdir -p "/var/www/phpmyadmin"
+cd "/var/www/phpmyadmin"
 curl -sSLo phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PHPMYADMIN_VERSION}"/phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages
