@@ -175,7 +175,7 @@ esac
 if [ "$SUPPORTED" == true ]; then
     echo "* Checking that your OS is compatible with the script..."
     sleep 3
-    echo "* $OS $OS_VER ${GREEN}is supported.${reset}"
+    echo -e "* $OS $OS_VER ${GREEN}is supported.${reset}"
   else
     echo "* $OS $OS_VER is not supported"
     print_error "Unsupported OS"
@@ -250,7 +250,7 @@ fi
 }
 
 check_fqdn() {
-echo -n "${GREEN}* Checking FQDN...${reset}"
+echo -ne "${GREEN}* Checking FQDN...${reset}"
 echo
 IP="$(host myip.opendns.com resolver1.opendns.com | grep "myip.opendns.com has" | awk '{print $4}')"
 CHECK_DNS="$(dig +short @8.8.8.8 "$FQDN" | tail -n1)"
@@ -268,7 +268,7 @@ fi
 configure_ufw() {
 apt-get install -y ufw
 
-echo "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
+echo -e "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
 
 ufw allow ssh >/dev/null
 ufw allow http >/dev/null
@@ -285,7 +285,7 @@ configure_ufw_cmd() {
 
 systemctl --now enable firewalld >/dev/null
 
-echo "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
+echo -e "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
 
 firewall-cmd --add-service=http --permanent -q
 firewall-cmd --add-service=https --permanent -q
@@ -294,7 +294,7 @@ firewall-cmd --reload -q
 }
 
 deps_ubuntu() {
-echo "${GREEN}* Installing dependencies for Ubuntu 18/20...${reset}"
+echo -e "${GREEN}* Installing dependencies for Ubuntu 18/20...${reset}"
 
 apt-get install -y software-properties-common curl apt-transport-https ca-certificates gnupg
 
@@ -312,7 +312,7 @@ enable_all_services
 }
 
 deps_debian() {
-echo "${GREEN}* Installing dependencies for Debian 9/10/11...${reset}"
+echo -e "${GREEN}* Installing dependencies for Debian 9/10/11...${reset}"
 
 apt-get install -y dirmngr
 
@@ -331,7 +331,7 @@ enable_all_services
 
 deps_centos() {
 if [ "$OS_VER_MAJOR" == "7" ]; then
-    echo "${GREEN}* Installing dependencies for CentOS 7...${reset}"
+    echo -e "${GREEN}* Installing dependencies for CentOS 7...${reset}"
 
     yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 
@@ -350,7 +350,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
 
     enable_all_services
   elif [ "$OS_VER_MAJOR" == "8" ]; then
-    echo "${GREEN}* Installing dependencies for CentOS 8...${reset}"
+    echo -e "${GREEN}* Installing dependencies for CentOS 8...${reset}"
 
     dnf install -y policycoreutils selinux-policy selinux-policy-targeted setroubleshoot-server setools setools-console mcstrans
 
@@ -369,7 +369,7 @@ fi
 }
 
 download_files() {
-echo "${GREEN}* Downloading files from phpmyadmin...${reset}"
+echo -e "${GREEN}* Downloading files from phpmyadmin...${reset}"
 
 mkdir -p "/var/www/phpmyadmin"
 cd "/var/www/phpmyadmin"
@@ -383,7 +383,7 @@ curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl
 }
 
 configure_phpmyadmin() {
-echo "${GREEN}* Configuring phpmyadmin...${reset}"
+echo -e "${GREEN}* Configuring phpmyadmin...${reset}"
 
 PHPMYADMIN_PASSWORD="$(openssl rand -base64 32)"
 KEY="$(openssl rand -base64 32)"
@@ -404,7 +404,7 @@ sed -i -e "s@<password>@$PHPMYADMIN_PASSWORD@g" "/var/www/phpmyadmin/config.inc.
 }
 
 set_permissions() {
-echo "${GREEN}* Setting Permissions...${reset}"
+echo -e "${GREEN}* Setting Permissions...${reset}"
 
 cd /etc
 mkdir -p phpmyadmin
@@ -424,7 +424,7 @@ chmod -R 660 /etc/phpmyadmin
 }
 
 create_user_login() {
-echo "${GREEN}* Creating user access for the panel...${reset}"
+echo -e "${GREEN}* Creating user access for the panel...${reset}"
 
 mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
@@ -432,7 +432,7 @@ mysql -u root -e "FLUSH PRIVILEGES;"
 }
 
 configure_web_server() {
-echo "* Configuring ${WEB_SERVER}..."
+echo -e "* Configuring ${WEB_SERVER}..."
 
 if [ "$WEB_SERVER" == "nginx" ]; then
     [ "$CONFIGURE_SSL" == true ] && WEB_FILE="nginx_ssl.conf"
@@ -492,7 +492,7 @@ esac
 }
 
 install_phpmyadmin() {
-echo "${GREEN}* Starting installation, this may take a few minutes, please wait.${reset}"
+echo -e "${GREEN}* Starting installation, this may take a few minutes, please wait.${reset}"
 sleep 3
 
 case "$OS" in
@@ -534,7 +534,7 @@ check_distro
 check_support_os
 
 # Ask which user to log into the panel #
-echo -e -n "* User to login to your panel (${YELLOW}phpmyadmin${reset}): "
+echo -ne "* User to login to your panel (${YELLOW}phpmyadmin${reset}): "
 read -r USERNAME
 [ -z "$USERNAME" ] && USERNAME="phpmyadmin"
 
@@ -584,7 +584,7 @@ bye() {
   echo
   print_brake 70
   echo
-  echo "${GREEN}* The script has finished the installation process!${reset}"
+  echo -e "${GREEN}* The script has finished the installation process!${reset}"
 
   [ "$CONFIGURE_SSL" == true ] && APP_URL="https://$FQDN"
   [ "$CONFIGURE_SSL" == false ] && APP_URL="http://$FQDN"
