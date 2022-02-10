@@ -163,7 +163,7 @@ case "$OS" in
     [ "$OS_VER_MAJOR" == "11" ] && SUPPORTED=true
     ;;
   centos)
-    PHP_SOCKET="/var/run/php-fpm/pterodactyl.sock"
+    PHP_SOCKET="/var/run/php-fpm/phpmyadmin.sock"
     [ "$OS_VER_MAJOR" == "7" ] && SUPPORTED=true
     [ "$OS_VER_MAJOR" == "8" ] && SUPPORTED=true
     ;;
@@ -185,11 +185,26 @@ fi
 
 # Other OS Functions #
 
-enable_all_services() {
-systemctl enable nginx
+enable_all_services_debian() {
+systemctl enable "$WEB_SERVER"
 systemctl enable mariadb
-systemctl start nginx
+systemctl start "$WEB_SERVER"
 systemctl start mariadb
+}
+
+enable_all_services_centos() {
+[ "$WEB_SERVER" == "nginx" ] && systemctl enable nginx && systemctl start nginx
+[ "$WEB_SERVER" == "apache2" ] && systemctl enable httpd && systemctl start httpd
+}
+
+centos_php() {
+curl -o /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/configs/www.phpmyadmin.conf
+
+[ "$WEB_SERVER" == "nginx" ] && sed -i -e "s@<web_server>@nginx@g" /etc/php-fpm.d/www.phpmyadmin.conf
+[ "$WEB_SERVER" == "apache2" ] && sed -i -e "s@<web_server>@httpd@g" /etc/php-fpm.d/www.phpmyadmin.conf
+
+systemctl enable php-fpm
+systemctl start php-fpm
 }
 
 # Ask which web server the user wants to use #
@@ -308,7 +323,9 @@ apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
-enable_all_services
+[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
+
+enable_all_services_debian
 }
 
 deps_debian() {
@@ -326,7 +343,9 @@ apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
-enable_all_services
+[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
+
+enable_all_services_debian
 }
 
 deps_centos() {
@@ -344,11 +363,11 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
 
     [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd
+    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd && yum install -y libapache2-mod-php
 
     yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql mariadb-server tar zip unzip
 
-    enable_all_services
+    enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "8" ]; then
     echo -e "${GREEN}* Installing dependencies for CentOS $OS_VER...${reset}"
 
@@ -358,13 +377,14 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf module enable -y php:remi-8.0
     dnf upgrade -y
 
-    dnf install -y php php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql
+    dnf install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql tar zip unzip
 
     dnf install -y mariadb mariadb-server
 
-    dnf install -y "$WEB_SERVER" tar zip unzip
+    [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
+    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd && dnf install -y libapache2-mod-php
 
-    enable_all_services
+    enable_all_services_centos
 fi
 }
 
@@ -373,6 +393,7 @@ echo -e "${GREEN}* Downloading files from phpmyadmin...${reset}"
 
 mkdir -p "/var/www/phpmyadmin"
 cd "/var/www/phpmyadmin"
+mkdir -p tmp
 curl -sSLo phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PHPMYADMIN_VERSION}"/phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz
 tar -xzvf phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz
 cd phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages
@@ -390,7 +411,7 @@ KEY="$(openssl rand -base64 32)"
 
 mysql -u root -e "CREATE USER 'pma'@'127.0.0.1' IDENTIFIED BY '${PHPMYADMIN_PASSWORD}';"
 mysql -u root -e "CREATE DATABASE phpmyadmin;"
-mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON phpmyadmin.* TO 'pma'@'127.0.0.1';"
+mysql -u root -e "GRANT ALL PRIVILEGES ON phpmyadmin.* TO 'pma'@'127.0.0.1';"
 mysql -u root -e "FLUSH PRIVILEGES;"
 cd "/var/www/phpmyadmin/sql"
 mysql -u root "phpmyadmin" < create_tables.sql
@@ -399,8 +420,6 @@ mysql -u root "phpmyadmin" < upgrade_tables_4_7_0+.sql
 
 sed -i -e "s@<key>@$KEY@g" "/var/www/phpmyadmin/config.inc.php"
 sed -i -e "s@<password>@$PHPMYADMIN_PASSWORD@g" "/var/www/phpmyadmin/config.inc.php"
-
-#curl -o /etc/php-fpm.d/www-phpmyadmin.conf $GITHUB/features/configs/www-phpmyadmin.conf
 }
 
 set_permissions() {
@@ -509,6 +528,7 @@ case "$OS" in
   [ "$CONFIGURE_UFW_CMD" == true ] && configure_ufw_cmd
 
   deps_centos
+  centos_php
   ;;
 esac
 
