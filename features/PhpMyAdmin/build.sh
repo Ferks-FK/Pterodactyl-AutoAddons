@@ -445,7 +445,7 @@ fi
 case "$OS" in
   debian | ubuntu)
     if [ "$WEB_SERVER" == "nginx" ]; then
-        rm /etc/nginx/sites-enabled/default
+        rm -rf /etc/nginx/sites-enabled/default
 
         curl -o /etc/nginx/sites-available/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
 
@@ -457,7 +457,7 @@ case "$OS" in
 
         ln -s /etc/nginx/sites-available/phpmyadmin.conf /etc/nginx/sites-enabled/phpmyadmin.conf
       elif [ "$WEB_SERVER" == "apache2" ]; then
-        rm /etc/apache/sites-enabled/000-default.conf
+        rm -rf /etc/apache/sites-enabled/000-default.conf
 
         curl -o /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
 
