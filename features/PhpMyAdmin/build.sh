@@ -306,7 +306,7 @@ curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
 
 apt-get update -y && apt-get upgrade -y
 
-apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl} "$WEB_SERVER" mariadb-server tar zip unzip
+apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
 enable_all_services
 }
@@ -324,7 +324,7 @@ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt
 
 apt-get update -y && apt-get upgrade -y
 
-apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl} "$WEB_SERVER" mariadb-server tar zip unzip
+apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
 enable_all_services
 }
@@ -346,7 +346,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
     [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd
 
-    yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl mariadb-server tar zip unzip
+    yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql mariadb-server tar zip unzip
 
     enable_all_services
   elif [ "$OS_VER_MAJOR" == "8" ]; then
@@ -358,7 +358,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf module enable -y php:remi-8.0
     dnf upgrade -y
 
-    dnf install -y php php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl
+    dnf install -y php php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql
 
     dnf install -y mariadb mariadb-server
 
@@ -517,7 +517,7 @@ configure_phpmyadmin
 set_permissions
 create_user_login
 configure_web_server
-return 1
+bye
 }
 
 main() {
@@ -599,4 +599,3 @@ bye() {
 
 # Exec Script #
 main
-bye
