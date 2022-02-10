@@ -147,6 +147,15 @@ check_distro() {
   OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
+# Other OS Functions #
+
+enable_all_services() {
+systemctl enable nginx
+systemctl enable mariadb
+systemctl start nginx
+systemctl start mariadb
+}
+
 # Ask which web server the user wants to use #
 
 web_server_menu() {
@@ -262,6 +271,8 @@ curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
 apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl} "$WEB_SERVER" mariadb-server tar zip unzip
+
+enable_all_services
 }
 
 deps_debian() {
@@ -278,11 +289,14 @@ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt
 apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl} "$WEB_SERVER" mariadb-server tar zip unzip
+
+enable_all_services
 }
 
 deps_centos() {
 if [ "$OS_VER_MAJOR" == "7" ]; then
-    echo "* Installing dependencies for CentOS 7.."
+    echo "* Installing dependencies for CentOS 7..."
+
     yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 
     yum install -y epel-release http://rpms.remirepo.net/enterprise/remi-release-7.rpm
@@ -297,8 +311,10 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd
 
     yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl mariadb-server tar zip unzip
+
+    enable_all_services
   elif [ "$OS_VER_MAJOR" == "8" ]; then
-    echo "* Installing dependencies for CentOS 8.."
+    echo "* Installing dependencies for CentOS 8..."
 
     dnf install -y policycoreutils selinux-policy selinux-policy-targeted setroubleshoot-server setools setools-console mcstrans
 
@@ -311,6 +327,8 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf install -y mariadb mariadb-server
 
     dnf install -y "$WEB_SERVER" tar zip unzip
+
+    enable_all_services
 fi
 }
 
@@ -361,7 +379,6 @@ case "$OS" in
   centos)
   [ "$WEB_SERVER" == "nginx" ] && chown -R nginx:nginx /var/www/phpmyadmin
   [ "$WEB_SERVER" == "apache2" ] && chown -R apache:apache /var/www/phpmyadmin
-
   ;;
 esac
 chmod -R 660 /etc/phpmyadmin
@@ -430,7 +447,6 @@ case "$OS" in
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/sites-available/phpmyadmin.conf
 
         ln -s /etc/httpd/sites-available/phpmyadmin.conf /etc/httpd/sites-enabled/phpmyadmin;.conf
-
     fi
   ;;
 esac
@@ -490,7 +506,6 @@ while [ -z "$FQDN" ]; do
   [ -z "$FQDN" ] && print_error "FQDN cannot be empty"
 done
 
-
 # Check the FQDN only if it is a string #
 [[ "$FQDN" == [a-zA-Z]* ]] && check_fqdn
 
@@ -502,7 +517,7 @@ ask_ssl
 
 # Summary #
 echo
-print_brake 65
+print_brake 70
 echo
 echo -e "* PhpMyAdmin Version (${YELLOW}$PHPMYADMIN_VERSION${reset}) with web-server (${YELLOW}$WEB_SERVER${reset}) in OS (${YELLOW}$OS${reset})"
 echo -e "* PhpMyAdmin Login: $USERNAME"
@@ -512,7 +527,7 @@ echo -e "* Hostname/FQDN: $FQDN"
 echo -e "* Configure Firewall: $CONFIGURE_UFW"
 echo -e "* Configure SSL: $CONFIGURE_SSL"
 echo
-print_brake 65
+print_brake 70
 echo
 
 # Confirm all the choices #
@@ -522,4 +537,23 @@ read -r CONTINUE_INSTALL
 [[ "$CONTINUE_INSTALL" = * ]] && print_error "Installation aborted!" && exit 1
 }
 
+bye() {
+  echo
+  print_brake 70
+  echo
+  echo "* The script has finished the installation process!"
+
+  [ "$CONFIGURE_SSL" == true ] && APP_URL="https://$FQDN"
+  [ "$CONFIGURE_SSL" == false ] && APP_URL="http://$FQDN"
+
+  echo -ne "${GREEN}* Your panel should be accessible through the link: ${YELLOW}$(hyperlink "$APP_URL")${reset}"
+  echo -ne "${GREEN}* Thank you for using this script!"
+  echo -ne "* Support Group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
+  echo
+  print_brake 70
+  echo
+}
+
+# Exec Script #
 main
+bye
