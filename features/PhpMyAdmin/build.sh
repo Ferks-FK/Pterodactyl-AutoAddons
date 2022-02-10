@@ -259,7 +259,7 @@ if [[ "$IP" != "$CHECK_DNS" ]]; then
     echo -n "* Would you like to check again? (y/N): "
     read -r CHECK_DNS_AGAIN
     [[ "$CHECK_DNS_AGAIN" =~ [Yy] ]] && check_fqdn
-    [[ "$CHECK_DNS_AGAIN" = * ]] && print_error "Installation aborted!" && exit 1
+    [[ "$CHECK_DNS_AGAIN" == [a-xA-X]* ]] && print_error "Installation aborted!" && exit 1
   else
     print_success "DNS successfully verified!"
 fi
@@ -577,7 +577,7 @@ echo
 echo -n "* Initial settings complete, do you want to continue to the installation? (y/N): "
 read -r CONTINUE_INSTALL
 [[ "$CONTINUE_INSTALL" =~ [Yy] ]] && install_phpmyadmin
-[[ "$CONTINUE_INSTALL" = * ]] && print_error "Installation aborted!" && exit 1
+[[ "$CONTINUE_INSTALL" == [a-xA-X]* ]] && print_error "Installation aborted!" && exit 1
 }
 
 bye() {
@@ -589,9 +589,9 @@ bye() {
   [ "$CONFIGURE_SSL" == true ] && APP_URL="https://$FQDN"
   [ "$CONFIGURE_SSL" == false ] && APP_URL="http://$FQDN"
 
-  echo -ne "${GREEN}* Your panel should be accessible through the link: ${YELLOW}$(hyperlink "$APP_URL")${reset}"
-  echo -ne "${GREEN}* Thank you for using this script!"
-  echo -ne "* Support Group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
+  echo -e "${GREEN}* Your panel should be accessible through the link: ${YELLOW}$(hyperlink "$APP_URL")${reset}"
+  echo -e "${GREEN}* Thank you for using this script!"
+  echo -e "* Support Group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
   echo
   print_brake 70
   echo
