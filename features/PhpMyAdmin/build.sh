@@ -517,7 +517,7 @@ configure_phpmyadmin
 set_permissions
 create_user_login
 configure_web_server
-true
+return 1
 }
 
 main() {
