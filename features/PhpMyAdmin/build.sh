@@ -490,6 +490,16 @@ while [ -z "$FQDN" ]; do
   [ -z "$FQDN" ] && print_error "FQDN cannot be empty"
 done
 
+case "$FQDN" in
+  [a-zA-Z])
+  echo "O FQDN É UMA STRING!"
+  exit 1
+  ;;
+  [0-9])
+  echo "O FQDN SÃO NUMEROS!"
+  exit 1
+esac
+
 # Verify the FQDN #
 check_fqdn
 
