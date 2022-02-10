@@ -294,7 +294,7 @@ firewall-cmd --reload -q
 }
 
 deps_ubuntu() {
-echo -e "${GREEN}* Installing dependencies for Ubuntu 18/20...${reset}"
+echo -e "${GREEN}* Installing dependencies for Ubuntu $OS_VER...${reset}"
 
 apt-get install -y software-properties-common curl apt-transport-https ca-certificates gnupg
 
@@ -312,7 +312,7 @@ enable_all_services
 }
 
 deps_debian() {
-echo -e "${GREEN}* Installing dependencies for Debian 9/10/11...${reset}"
+echo -e "${GREEN}* Installing dependencies for Debian $OS_VER...${reset}"
 
 apt-get install -y dirmngr
 
@@ -331,7 +331,7 @@ enable_all_services
 
 deps_centos() {
 if [ "$OS_VER_MAJOR" == "7" ]; then
-    echo -e "${GREEN}* Installing dependencies for CentOS 7...${reset}"
+    echo -e "${GREEN}* Installing dependencies for CentOS $OS_VER...${reset}"
 
     yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 
@@ -350,7 +350,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
 
     enable_all_services
   elif [ "$OS_VER_MAJOR" == "8" ]; then
-    echo -e "${GREEN}* Installing dependencies for CentOS 8...${reset}"
+    echo -e "${GREEN}* Installing dependencies for CentOS $OS_VER...${reset}"
 
     dnf install -y policycoreutils selinux-policy selinux-policy-targeted setroubleshoot-server setools setools-console mcstrans
 
@@ -432,7 +432,7 @@ mysql -u root -e "FLUSH PRIVILEGES;"
 }
 
 configure_web_server() {
-echo -e "* Configuring ${WEB_SERVER}..."
+echo -e "${GREEN}* Configuring ${WEB_SERVER}...${reset}"
 
 if [ "$WEB_SERVER" == "nginx" ]; then
     [ "$CONFIGURE_SSL" == true ] && WEB_FILE="nginx_ssl.conf"
