@@ -147,6 +147,40 @@ check_distro() {
   OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
+#### Check if OS is supported ####
+
+check_support_os() {
+case "$OS" in
+  ubuntu)
+    PHP_SOCKET="/run/php/php8.0-fpm.sock"
+    [ "$OS_VER_MAJOR" == "18" ] && SUPPORTED=true
+    [ "$OS_VER_MAJOR" == "20" ] && SUPPORTED=true
+    ;;
+  debian)
+    PHP_SOCKET="/run/php/php8.0-fpm.sock"
+    [ "$OS_VER_MAJOR" == "9" ] && SUPPORTED=true
+    [ "$OS_VER_MAJOR" == "10" ] && SUPPORTED=true
+    [ "$OS_VER_MAJOR" == "11" ] && SUPPORTED=true
+    ;;
+  centos)
+    PHP_SOCKET="/var/run/php-fpm/pterodactyl.sock"
+    [ "$OS_VER_MAJOR" == "7" ] && SUPPORTED=true
+    [ "$OS_VER_MAJOR" == "8" ] && SUPPORTED=true
+    ;;
+  *)
+    SUPPORTED=false
+    ;;
+esac
+
+if [ "$SUPPORTED" == true ]; then
+    echo "* $OS $OS_VER is supported."
+  else
+    echo "* $OS $OS_VER is not supported"
+    print_error "Unsupported OS"
+    exit 1
+fi
+}
+
 # Other OS Functions #
 
 enable_all_services() {
@@ -479,6 +513,7 @@ configure_phpmyadmin
 set_permissions
 create_user_login
 configure_web_server
+true
 }
 
 main() {
@@ -490,6 +525,9 @@ fi
 
 # Exec Check Distro #
 check_distro
+
+# Exec Supported OS #
+check_support_os
 
 # Ask which user to log into the panel #
 echo -e -n "* User to login to your panel (${YELLOW}phpmyadmin${reset}): "
