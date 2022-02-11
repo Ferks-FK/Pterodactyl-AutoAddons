@@ -20,10 +20,12 @@ PHPMYADMIN_VERSION="5.1.2"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 
-# Set functions to false by default #
+#### Set functions to false by default ####
 
 CONFIGURE_UFW=false
 CONFIGURE_UFW_CMD=false
+CONFIGURE_FIREWALL=false
+CONFIGURE_SSL=false
 
 #### Github URL's ####
 
@@ -198,7 +200,7 @@ enable_all_services_centos() {
 }
 
 centos_php() {
-curl -o /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/configs/www.phpmyadmin.conf
+curl -o /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/www.phpmyadmin.conf
 
 [ "$WEB_SERVER" == "nginx" ] && sed -i -e "s@<web_server>@nginx@g" /etc/php-fpm.d/www.phpmyadmin.conf
 [ "$WEB_SERVER" == "apache2" ] && sed -i -e "s@<web_server>@httpd@g" /etc/php-fpm.d/www.phpmyadmin.conf
@@ -235,7 +237,6 @@ case "$WEB_SERVER" in
 }
 
 ask_ssl() {
-CONFIGURE_SSL=false
 email=""
 echo -n "* Do you want to generate SSL certificate for your domain? (y/N): "
 read -r ASK_SSL
@@ -257,9 +258,11 @@ if [[ "$ASK_UFW" =~ [Yy] ]]; then
   case "$OS" in
     debian | ubuntu)
     CONFIGURE_UFW=true
+    CONFIGURE_FIREWALL=true
     ;;
     centos)
     CONFIGURE_UFW_CMD=true
+    CONFIGURE_FIREWALL=true
   esac
 fi
 }
@@ -466,7 +469,7 @@ case "$OS" in
     if [ "$WEB_SERVER" == "nginx" ]; then
         rm -rf /etc/nginx/sites-enabled/default
 
-        curl -o /etc/nginx/sites-available/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
+        curl -o /etc/nginx/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/sites-available/phpmyadmin.conf
 
@@ -478,7 +481,7 @@ case "$OS" in
       elif [ "$WEB_SERVER" == "apache2" ]; then
         rm -rf /etc/apache/sites-enabled/000-default.conf
 
-        curl -o /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
+        curl -o /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/apache2/sites-available/phpmyadmin.conf
 
@@ -489,7 +492,7 @@ case "$OS" in
     if [ "$WEB_SERVER" == "nginx" ]; then
         rm -rf /etc/nginx/conf.d/default
 
-        curl -o /etc/nginx/conf.d/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
+        curl -o /etc/nginx/conf.d/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/conf.d/phpmyadmin.conf
 
@@ -500,7 +503,7 @@ case "$OS" in
         mkdir -p /etc/httpd/sites-available
         mkdir -p /etc/httpd/sites-enabled
 
-        curl -o /etc/httpd/sites-available/phpmyadmin.conf $GITHUB/features/configs/$WEB_FILE
+        curl -o /etc/httpd/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/sites-available/phpmyadmin.conf
 
@@ -564,19 +567,27 @@ password_input PASSWORD "Password for login to your panel: " "The password canno
 # Set FQDN for phpmyadmin #
 FQDN=""
 while [ -z "$FQDN" ]; do
-  echo -ne "* Set the FQDN for phpmyadmin (${YELLOW}mysql.example.com${reset}): "
+  echo -ne "* Set the Hostname/FQDN for phpmyadmin (${YELLOW}mysql.example.com${reset}): "
   read -r FQDN
   [ -z "$FQDN" ] && print_error "FQDN cannot be empty"
+  echo -ne "* This is the Hostname/FQDN you entered: (${YELLOW}$FQDN${reset}), is this correct? (y/N): "
+  read -r CONFIRM_FQDN
+  if [[ "$CONFIRM_FQDN" =~ [Nn] ]]; then
+    while [ -z "$FQDN" ] || [[ "$CONFIRM_FQDN" =~ [Nn] ]]; do
+      echo -ne "* Set the FQDN for phpmyadmin (${YELLOW}mysql.example.com${reset}): "
+      read -r FQDN
+      [ -z "$FQDN" ] && print_error "FQDN cannot be empty"
+      echo -ne "* This is the Hostname/FQDN you entered: (${YELLOW}$FQDN${reset}), is this correct? (y/N): "
+      read -r CONFIRM_FQDN
+    done
+  fi
 done
 
-# Check the FQDN only if it is a string #
-[[ "$FQDN" == [a-zA-Z]* ]] && check_fqdn
+# Check FQDN and ask for SSL only if FQDN is a string #
+[[ "$FQDN" == [a-zA-Z]* ]] && check_fqdn && ask_ssl
 
 # Run the web-server chooser menu #
 web_server_menu
-
-# Ask whether you want SSL or not #
-ask_ssl
 
 # Summary #
 echo
@@ -587,7 +598,7 @@ echo -e "* PhpMyAdmin Login: $USERNAME"
 echo -e "* PhpMyAdmin Password: (censored)"
 [ "$CONFIGURE_SSL" == true ] && echo -e "* Email Certificate: $email"
 echo -e "* Hostname/FQDN: $FQDN"
-echo -e "* Configure Firewall: $CONFIGURE_UFW"
+echo -e "* Configure Firewall: $CONFIGURE_FIREWALL"
 echo -e "* Configure SSL: $CONFIGURE_SSL"
 echo
 print_brake 70
