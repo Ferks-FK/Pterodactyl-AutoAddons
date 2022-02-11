@@ -324,7 +324,7 @@ curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
 
 apt-get update -y && apt-get upgrade -y
 
-apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
+apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
 [ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
 
@@ -344,7 +344,7 @@ echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt
 
 apt-get update -y && apt-get upgrade -y
 
-apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,uploadprogress,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
+apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
 [ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
 
@@ -368,7 +368,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
     [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd && yum install -y libapache2-mod-php
 
-    yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql mariadb-server tar zip unzip
+    yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql mariadb-server tar zip unzip
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "8" ]; then
@@ -380,9 +380,9 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf module enable -y php:remi-8.0
     dnf upgrade -y
 
-    dnf install -y php php-mbstring php-fpm php-cli php-zip php-gd php-uploadprogress php-xml php-curl php-mysql tar zip unzip
+    dnf install -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql tar zip unzip
 
-    dnf install -y mariadb mariadb-server
+    dnf install -y mariadb-server
 
     [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
     [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd && dnf install -y libapache2-mod-php
