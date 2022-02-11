@@ -16,7 +16,7 @@ set -e
 #### Fixed Variables ####
 
 SCRIPT_VERSION="PhpMyAdmin-Installer"
-PHPMYADMIN_VERSION="5.1.2"
+PHPMYADMIN_VERSION="5.1.3"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 
 
@@ -60,6 +60,12 @@ print_error() {
 print_success() {
   echo ""
   echo -e "* ${GREEN}SUCCESS${reset}: $1"
+}
+
+print() {
+  echo ""
+  echo -e "${GREEN}* $1 ${reset}"
+  echo ""
 }
 
 hyperlink() {
@@ -175,9 +181,9 @@ case "$OS" in
 esac
 
 if [ "$SUPPORTED" == true ]; then
-    echo "* Checking that your OS is compatible with the script..."
+    print "Checking that your OS is compatible with the script..."
     sleep 3
-    echo -e "* $OS $OS_VER ${GREEN}is supported.${reset}"
+    print "$OS $OS_VER is supported."
   else
     echo "* $OS $OS_VER is not supported"
     print_error "Unsupported OS"
@@ -263,13 +269,13 @@ if [[ "$ASK_UFW" =~ [Yy] ]]; then
     centos)
     CONFIGURE_UFW_CMD=true
     CONFIGURE_FIREWALL=true
+    ;;
   esac
 fi
 }
 
 check_fqdn() {
-echo -ne "${GREEN}* Checking FQDN...${reset}"
-echo
+print "Checking FQDN..."
 IP="$(host myip.opendns.com resolver1.opendns.com | grep "myip.opendns.com has" | awk '{print $4}')"
 CHECK_DNS="$(dig +short @8.8.8.8 "$FQDN" | tail -n1)"
 if [[ "$IP" != "$CHECK_DNS" ]]; then
@@ -286,7 +292,7 @@ fi
 configure_ufw() {
 apt-get install -y ufw
 
-echo -e "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
+print " Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)"
 
 ufw allow ssh >/dev/null
 ufw allow http >/dev/null
@@ -303,7 +309,7 @@ configure_ufw_cmd() {
 
 systemctl --now enable firewalld >/dev/null
 
-echo -e "${GREEN}* Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)${reset}"
+print "Opening port 22 (SSH), 80 (HTTP) and 443 (HTTPS)"
 
 firewall-cmd --add-service=http --permanent -q
 firewall-cmd --add-service=https --permanent -q
@@ -312,7 +318,7 @@ firewall-cmd --reload -q
 }
 
 deps_ubuntu() {
-echo -e "${GREEN}* Installing dependencies for Ubuntu $OS_VER...${reset}"
+print "Installing dependencies for Ubuntu $OS_VER..."
 
 apt-get install -y software-properties-common curl apt-transport-https ca-certificates gnupg
 
@@ -332,7 +338,7 @@ enable_all_services_debian
 }
 
 deps_debian() {
-echo -e "${GREEN}* Installing dependencies for Debian $OS_VER...${reset}"
+print "Installing dependencies for Debian $OS_VER..."
 
 apt-get install -y dirmngr
 
@@ -353,7 +359,7 @@ enable_all_services_debian
 
 deps_centos() {
 if [ "$OS_VER_MAJOR" == "7" ]; then
-    echo -e "${GREEN}* Installing dependencies for CentOS $OS_VER...${reset}"
+    print "Installing dependencies for CentOS $OS_VER..."
 
     yum install -y policycoreutils policycoreutils-python selinux-policy selinux-policy-targeted libselinux-utils setroubleshoot-server setools setools-console mcstrans
 
@@ -372,7 +378,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "8" ]; then
-    echo -e "${GREEN}* Installing dependencies for CentOS $OS_VER...${reset}"
+    print "Installing dependencies for CentOS $OS_VER..."
 
     dnf install -y policycoreutils selinux-policy selinux-policy-targeted setroubleshoot-server setools setools-console mcstrans
 
@@ -392,7 +398,7 @@ fi
 }
 
 download_files() {
-echo -e "${GREEN}* Downloading files from phpmyadmin...${reset}"
+print "Downloading files from phpmyadmin..."
 
 mkdir -p "/var/www/phpmyadmin"
 cd "/var/www/phpmyadmin"
@@ -403,11 +409,11 @@ cd phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages
 mv -- * "/var/www/phpmyadmin"
 cd "/var/www/phpmyadmin"
 rm -r phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages phpMyAdmin-"${PHPMYADMIN_VERSION}"-all-languages.tar.gz config.sample.inc.php
-curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/features/configs/config.inc.php
+curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/features/PhpMyAdmin/configs/config.inc.php
 }
 
 configure_phpmyadmin() {
-echo -e "${GREEN}* Configuring phpmyadmin...${reset}"
+print "Configuring phpmyadmin..."
 
 PHPMYADMIN_PASSWORD="$(openssl rand -base64 32)"
 KEY="$(openssl rand -base64 32)"
@@ -426,7 +432,7 @@ sed -i -e "s@<password>@$PHPMYADMIN_PASSWORD@g" "/var/www/phpmyadmin/config.inc.
 }
 
 set_permissions() {
-echo -e "${GREEN}* Setting Permissions...${reset}"
+print "Setting Permissions..."
 
 cd /etc
 mkdir -p phpmyadmin
@@ -446,7 +452,7 @@ chmod -R 660 /etc/phpmyadmin
 }
 
 create_user_login() {
-echo -e "${GREEN}* Creating user access for the panel...${reset}"
+print "Creating user access for the panel..."
 
 mysql -u root -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
 mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
@@ -454,7 +460,7 @@ mysql -u root -e "FLUSH PRIVILEGES;"
 }
 
 configure_web_server() {
-echo -e "${GREEN}* Configuring ${WEB_SERVER}...${reset}"
+print "Configuring ${WEB_SERVER}..."
 
 if [ "$WEB_SERVER" == "nginx" ]; then
     [ "$CONFIGURE_SSL" == true ] && WEB_FILE="nginx_ssl.conf"
@@ -516,7 +522,7 @@ esac
 }
 
 install_phpmyadmin() {
-echo -e "${GREEN}* Starting installation, this may take a few minutes, please wait.${reset}"
+print "Starting installation, this may take a few minutes, please wait."
 sleep 3
 
 case "$OS" in
@@ -559,7 +565,7 @@ check_distro
 check_support_os
 
 # Ask which user to log into the panel #
-echo -ne "* User to login to your panel (${YELLOW}phpmyadmin${reset}): "
+echo -ne "* Username to login to your panel (${YELLOW}phpmyadmin${reset}): "
 read -r USERNAME
 [ -z "$USERNAME" ] && USERNAME="phpmyadmin"
 
@@ -595,7 +601,7 @@ web_server_menu
 echo
 print_brake 70
 echo
-echo -e "* PhpMyAdmin Version (${YELLOW}$PHPMYADMIN_VERSION${reset}) with web-server (${YELLOW}$WEB_SERVER${reset}) in OS (${YELLOW}$OS${reset})"
+echo -e "* PhpMyAdmin Version (${YELLOW}$PHPMYADMIN_VERSION${reset}) with Web-Server (${YELLOW}$WEB_SERVER${reset}) in OS (${YELLOW}$OS $OS_VER${reset})"
 echo -e "* PhpMyAdmin Login: $USERNAME"
 echo -e "* PhpMyAdmin Password: (censored)"
 [ "$CONFIGURE_SSL" == true ] && echo -e "* Email Certificate: $email"
