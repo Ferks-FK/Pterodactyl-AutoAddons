@@ -481,6 +481,8 @@ case "$OS" in
       elif [ "$WEB_SERVER" == "apache2" ]; then
         rm -rf /etc/apache/sites-enabled/000-default.conf
 
+        rm -rf /var/www/html
+
         curl -o /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/apache2/sites-available/phpmyadmin.conf
