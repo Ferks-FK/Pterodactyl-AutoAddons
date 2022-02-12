@@ -279,7 +279,8 @@ fi
 
 check_fqdn() {
 print "Checking FQDN..."
-IP="$(curl https://ipecho.net/plain ; echo)"
+sleep 2
+IP="$(curl -s https://ipecho.net/plain ; echo)"
 CHECK_DNS="$(dig +short @8.8.8.8 "$FQDN" | tail -n1)"
 if [[ "$IP" != "$CHECK_DNS" ]]; then
     print_error "Your FQDN (${YELLOW}$FQDN${reset}) is not pointing to the public IP (${YELLOW}$IP${reset}), please make sure your domain is set correctly."
@@ -323,11 +324,11 @@ firewall-cmd --reload -q
 inicial_deps() {
 case "$OS" in
   debian | ubuntu)
-    apt-get update -y && apt-get install -y dnsutils
+    apt-get update -y && apt-get install -yq dnsutils
   ;;
   centos)
-    [ "$OS_VER_MAJOR" == "7" ] && yum update -y && yum install -y bind-utils
-    [ "$OS_VER_MAJOR" == "8" ] && dnf update -y && dnf install -y bind-utils
+    [ "$OS_VER_MAJOR" == "7" ] && yum update -y && yum install -yq bind-utils
+    [ "$OS_VER_MAJOR" == "8" ] && dnf update -y && dnf install -yq bind-utils
   ;;
 esac
 }
@@ -452,7 +453,7 @@ print "Setting Permissions..."
 cd /etc
 mkdir -p phpmyadmin
 cd phpmyadmin
-mkdir save upload
+mkdir -p save upload
 case "$OS" in
   debian | ubuntu)
   [ "$WEB_SERVER" == "nginx" ] && chown -R www-data:www-data /var/www/phpmyadmin
