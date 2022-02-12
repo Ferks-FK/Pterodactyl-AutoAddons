@@ -194,18 +194,17 @@ fi
 # Other OS Functions #
 
 enable_all_services_debian() {
-systemctl enable "$WEB_SERVER"
-systemctl enable mariadb
-systemctl start "$WEB_SERVER"
-systemctl start mariadb
+systemctl enable "$WEB_SERVER" --now
+systemctl enable mariadb --now
 }
 
 enable_all_services_centos() {
 if [[ "$WEB_SERVER" == "nginx" ]]; then
-  systemctl enable nginx
+  systemctl enable nginx --now
   elif [[ "$WEB_SERVER" == "apache2" ]]; then
-  systemctl enable httpd
+  systemctl enable httpd --now
 fi
+systemctl enable mariadb --now
 }
 
 centos_php() {
