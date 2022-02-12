@@ -201,8 +201,11 @@ systemctl start mariadb
 }
 
 enable_all_services_centos() {
-[ "$WEB_SERVER" == "nginx" ] && systemctl enable nginx && systemctl start nginx
-[ "$WEB_SERVER" == "apache2" ] && systemctl enable httpd && systemctl start httpd
+if [[ "$WEB_SERVER" == "nginx" ]]; then
+  systemctl enable nginx
+  elif [[ "$WEB_SERVER" == "apache2" ]]; then
+  systemctl enable httpd
+fi
 }
 
 centos_php() {
@@ -276,7 +279,7 @@ fi
 
 check_fqdn() {
 print "Checking FQDN..."
-IP="$(host myip.opendns.com resolver1.opendns.com | grep "myip.opendns.com has" | awk '{print $4}')"
+IP="$(curl https://ipecho.net/plain ; echo)"
 CHECK_DNS="$(dig +short @8.8.8.8 "$FQDN" | tail -n1)"
 if [[ "$IP" != "$CHECK_DNS" ]]; then
     print_error "Your FQDN (${YELLOW}$FQDN${reset}) is not pointing to the public IP (${YELLOW}$IP${reset}), please make sure your domain is set correctly."
@@ -315,6 +318,18 @@ firewall-cmd --add-service=http --permanent -q
 firewall-cmd --add-service=https --permanent -q
 firewall-cmd --add-service=ssh --permanent -q
 firewall-cmd --reload -q
+}
+
+inicial_deps() {
+case "$OS" in
+  debian | ubuntu)
+    apt-get update -y && apt-get install -y dnsutils
+  ;;
+  centos)
+    [ "$OS_VER_MAJOR" == "7" ] && yum update -y && yum install -y bind-utils
+    [ "$OS_VER_MAJOR" == "8" ] && dnf update -y && dnf install -y bind-utils
+  ;;
+esac
 }
 
 deps_ubuntu() {
@@ -534,8 +549,8 @@ case "$OS" in
   [ "$OS" == "ubuntu" ] && deps_ubuntu
   [ "$OS" == "debian" ] && deps_debian
   ;;
-
   centos)
+
   [ "$CONFIGURE_UFW_CMD" == true ] && configure_ufw_cmd
 
   deps_centos
@@ -637,4 +652,5 @@ bye() {
 }
 
 # Exec Script #
+inicial_deps
 main
