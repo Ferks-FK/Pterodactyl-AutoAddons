@@ -60,6 +60,7 @@ print_error() {
 print_success() {
   echo ""
   echo -e "* ${GREEN}SUCCESS${reset}: $1"
+  echo ""
 }
 
 print() {
@@ -174,6 +175,7 @@ case "$OS" in
     PHP_SOCKET="/var/run/php-fpm/phpmyadmin.sock"
     [ "$OS_VER_MAJOR" == "7" ] && SUPPORTED=true
     [ "$OS_VER_MAJOR" == "8" ] && SUPPORTED=true
+    [ "$OS_VER_MAJOR" == "9" ] && SUPPORTED=true
     ;;
   *)
     SUPPORTED=false
@@ -200,18 +202,33 @@ systemctl enable mariadb --now
 
 enable_all_services_centos() {
 if [[ "$WEB_SERVER" == "nginx" ]]; then
-  systemctl enable nginx --now
+    systemctl enable nginx --now
   elif [[ "$WEB_SERVER" == "apache2" ]]; then
-  systemctl enable httpd --now
+    systemctl enable httpd --now
 fi
 systemctl enable mariadb --now
 }
 
+restart_all_services_debian() {
+systemctl restart "$WEB_SERVER"
+systemctl restart mariadb
+}
+
+restart_all_services_centos() {
+if [[ "$WEB_SERVER" == "nginx" ]]; then
+    systemctl restart nginx
+    systemctl restart mariadb
+  elif [[ "$WEB_SERVER" == "apache2" ]]; then
+    systemctl restart httpd
+    systemctl restart mariadb
+fi
+}
+
 centos_php() {
-curl -o /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/www.phpmyadmin.conf
+curl -so /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/www.phpmyadmin.conf
 
 [ "$WEB_SERVER" == "nginx" ] && sed -i -e "s@<web_server>@nginx@g" /etc/php-fpm.d/www.phpmyadmin.conf
-[ "$WEB_SERVER" == "apache2" ] && sed -i -e "s@<web_server>@httpd@g" /etc/php-fpm.d/www.phpmyadmin.conf
+[ "$WEB_SERVER" == "apache2" ] && sed -i -e "s@<web_server>@apache@g" /etc/php-fpm.d/www.phpmyadmin.conf
 
 systemctl enable php-fpm
 systemctl start php-fpm
@@ -221,11 +238,8 @@ systemctl start php-fpm
 
 web_server_menu() {
 WEB_SERVER="nginx"
-echo -ne "
-* CHOOSE YOUR WEB-SERVER
-1) Nginx (${YELLOW}Default${reset})
-2) Apache2
-"
+echo
+echo -ne "* Choose your Web-Server\n1) Nginx (${YELLOW}Default${reset})\n2) Apache2 "
 read -r WEB_SERVER
 case "$WEB_SERVER" in
   "")
@@ -321,13 +335,18 @@ firewall-cmd --reload -q
 }
 
 inicial_deps() {
+print "Downloading packages required for FQDN validation..."
+
 case "$OS" in
   debian | ubuntu)
-    apt-get update -y && apt-get install -yq dnsutils
+    apt-get update -y && apt-get install -y dnsutils
   ;;
   centos)
-    [ "$OS_VER_MAJOR" == "7" ] && yum update -y && yum install -yq bind-utils
-    [ "$OS_VER_MAJOR" == "8" ] && dnf update -y && dnf install -yq bind-utils
+    if [[ "$OS_VER_MAJOR" == "7" ]]; then
+        yum update -y && yum install -y bind-utils
+      elif [[ "$OS_VER_MAJOR" == "8" ]]; then
+        dnf update -y && dnf install -y bind-utils
+    fi
   ;;
 esac
 }
@@ -347,7 +366,7 @@ apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
-[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
+[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php8.0
 
 enable_all_services_debian
 }
@@ -367,7 +386,7 @@ apt-get update -y && apt-get upgrade -y
 
 apt-get install -y php8.0 php8.0-{mbstring,fpm,cli,zip,gd,xml,curl,mysql} "$WEB_SERVER" mariadb-server tar zip unzip
 
-[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php
+[ "$WEB_SERVER" == "apache2" ] && apt-get install -y libapache2-mod-php8.0
 
 enable_all_services_debian
 }
@@ -386,10 +405,10 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
 
     curl -sS https://downloads.mariadb.com/MariaDB/mariadb_repo_setup | sudo bash
 
-    [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd && yum install -y libapache2-mod-php
-
     yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql mariadb-server tar zip unzip
+
+    [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
+    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd #&& yum install -y libapache2-mod-php
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "8" ]; then
@@ -402,6 +421,26 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf upgrade -y
 
     dnf install -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql tar zip unzip
+
+    dnf install -y mariadb-server
+
+    [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
+    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd && dnf install -y libapache2-mod-php8.0
+
+    enable_all_services_centos
+  elif [ "$OS_VER_MAJOR" == "9" ]; then
+    print "Installing dependencies for CentOS $OS_VER..."
+
+    dnf install -y policycoreutils selinux-policy selinux-policy-targeted setroubleshoot-server setools setools-console mcstrans
+
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+    dnf install -y dnf-utils http://rpms.remirepo.net/enterprise/remi-release-9.rpm
+    dnf update -y --refresh
+    dnf module enable -y php:remi-8.0
+
+    dnf upgrade -y
+
+    dnf install --skip-broken -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql tar zip unzip
 
     dnf install -y mariadb-server
 
@@ -490,7 +529,7 @@ case "$OS" in
     if [ "$WEB_SERVER" == "nginx" ]; then
         rm -rf /etc/nginx/sites-enabled/default
 
-        curl -o /etc/nginx/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
+        curl -so /etc/nginx/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/sites-available/phpmyadmin.conf
 
@@ -500,13 +539,16 @@ case "$OS" in
 
         ln -s /etc/nginx/sites-available/phpmyadmin.conf /etc/nginx/sites-enabled/phpmyadmin.conf
       elif [ "$WEB_SERVER" == "apache2" ]; then
-        rm -rf /etc/apache/sites-enabled/000-default.conf
-
+        rm -rf /etc/apache2/sites-available/000-default.conf default-ssl.conf
+        rm -rf /etc/apache2/sites-enabled/000-default.conf
         rm -rf /var/www/html
 
-        curl -o /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
+        curl -so /etc/apache2/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/apache2/sites-available/phpmyadmin.conf
+
+        # Fix "AH00558: apache2: Could not reliably determine the server's fully qualified domain name" #
+        sed -i -e "\$a ServerName ${FQDN}" /etc/apache2/apache2.conf
 
         ln -s /etc/apache2/sites-available/phpmyadmin.conf /etc/apache2/sites-enabled/phpmyadmin.conf
     fi
@@ -515,23 +557,42 @@ case "$OS" in
     if [ "$WEB_SERVER" == "nginx" ]; then
         rm -rf /etc/nginx/conf.d/default
 
-        curl -o /etc/nginx/conf.d/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
+        curl -so /etc/nginx/conf.d/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
         sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/conf.d/phpmyadmin.conf
 
         sed -i -e "s@<php_socket>@${PHP_SOCKET}@g" /etc/nginx/conf.d/phpmyadmin.conf
       elif [ "$WEB_SERVER" == "apache2" ]; then
         rm -rf /usr/share/httpd
-        rm -rf /etc/httpd/conf.d/*
+        #rm -rf /etc/httpd/conf.d/*
+
         mkdir -p /etc/httpd/sites-available
         mkdir -p /etc/httpd/sites-enabled
 
-        curl -o /etc/httpd/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
+        curl -so /etc/httpd/sites-available/phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/$WEB_FILE
 
-        sed -i -e "s@<domain>@${FQDN}@g" /etc/nginx/sites-available/phpmyadmin.conf
+        sed -i -e "s@<domain>@${FQDN}@g" /etc/httpd/sites-available/phpmyadmin.conf
 
-        ln -s /etc/httpd/sites-available/phpmyadmin.conf /etc/httpd/sites-enabled/phpmyadmin;.conf
+        # Fix "AH00558: apache2: Could not reliably determine the server's fully qualified domain name" #
+        sed -i -e "\$a ServerName ${FQDN}" /etc/httpd/conf/httpd.conf
+
+        sed -i -e "\$a IncludeOptional sites-enabled/*.conf" /etc/httpd/conf/httpd.conf
+
+        ln -s /etc/httpd/sites-available/phpmyadmin.conf /etc/httpd/sites-enabled/phpmyadmin.conf
     fi
+  ;;
+esac
+}
+
+restart_services() {
+print "Restarting all services..."
+
+case "$OS" in
+  debian | ubuntu)
+    restart_all_services_debian
+  ;;
+  centos)
+    restart_all_services_centos
   ;;
 esac
 }
@@ -563,6 +624,7 @@ configure_phpmyadmin
 set_permissions
 create_user_login
 configure_web_server
+restart_services
 bye
 }
 
@@ -606,15 +668,19 @@ while [ -z "$FQDN" ]; do
   fi
 done
 
-# Check FQDN and ask for SSL only if FQDN is a string #
-[[ "$FQDN" == [a-zA-Z]* ]] && check_fqdn && ask_ssl
+# Install the packages to check FQDN and ask about SSL only if FQDN is a string #
+if [[ "$FQDN" == [a-zA-Z]* ]]; then
+  inicial_deps
+  check_fqdn
+  ask_ssl
+fi
 
 # Run the web-server chooser menu #
 web_server_menu
 
 # Summary #
 echo
-print_brake 70
+print_brake 75
 echo
 echo -e "* PhpMyAdmin Version (${YELLOW}$PHPMYADMIN_VERSION${reset}) with Web-Server (${YELLOW}$WEB_SERVER${reset}) in OS (${YELLOW}$OS $OS_VER${reset})"
 echo -e "* PhpMyAdmin Login: $USERNAME"
@@ -624,7 +690,7 @@ echo -e "* Hostname/FQDN: $FQDN"
 echo -e "* Configure Firewall: $CONFIGURE_FIREWALL"
 echo -e "* Configure SSL: $CONFIGURE_SSL"
 echo
-print_brake 70
+print_brake 75
 echo
 
 # Confirm all the choices #
@@ -652,5 +718,4 @@ bye() {
 }
 
 # Exec Script #
-inicial_deps
 main
