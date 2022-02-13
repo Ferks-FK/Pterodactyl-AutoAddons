@@ -425,7 +425,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf install -y mariadb-server
 
     [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd && dnf install -y libapache2-mod-php8.0
+    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd #&& dnf install -y libapache2-mod-php8.0
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "9" ]; then
@@ -503,6 +503,7 @@ case "$OS" in
   ;;
 esac
 chmod -R 660 /etc/phpmyadmin
+chmod 700 /var/www/phpmyadmin/tmp
 }
 
 create_user_login() {
@@ -563,9 +564,6 @@ case "$OS" in
 
         sed -i -e "s@<php_socket>@${PHP_SOCKET}@g" /etc/nginx/conf.d/phpmyadmin.conf
       elif [ "$WEB_SERVER" == "apache2" ]; then
-        rm -rf /usr/share/httpd
-        #rm -rf /etc/httpd/conf.d/*
-
         mkdir -p /etc/httpd/sites-available
         mkdir -p /etc/httpd/sites-enabled
 
@@ -579,6 +577,10 @@ case "$OS" in
         sed -i -e "\$a IncludeOptional sites-enabled/*.conf" /etc/httpd/conf/httpd.conf
 
         ln -s /etc/httpd/sites-available/phpmyadmin.conf /etc/httpd/sites-enabled/phpmyadmin.conf
+
+        # If SElinux is enabled, change some policies to avoid errors #
+        setsebool -P httpd_can_network_connect on
+        setsebool -P httpd_execmem on
     fi
   ;;
 esac
