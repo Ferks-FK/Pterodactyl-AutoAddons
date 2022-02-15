@@ -212,15 +212,18 @@ systemctl enable mariadb --now
 restart_all_services_debian() {
 systemctl restart "$WEB_SERVER"
 systemctl restart mariadb
+systemctl restart php-fpm
 }
 
 restart_all_services_centos() {
 if [[ "$WEB_SERVER" == "nginx" ]]; then
     systemctl restart nginx
     systemctl restart mariadb
+    systemctl restart php-fpm
   elif [[ "$WEB_SERVER" == "apache2" ]]; then
     systemctl restart httpd
     systemctl restart mariadb
+    systemctl restart php-fpm
 fi
 }
 
@@ -230,8 +233,7 @@ curl -so /etc/php-fpm.d/www.phpmyadmin.conf $GITHUB/features/PhpMyAdmin/configs/
 [ "$WEB_SERVER" == "nginx" ] && sed -i -e "s@<web_server>@nginx@g" /etc/php-fpm.d/www.phpmyadmin.conf
 [ "$WEB_SERVER" == "apache2" ] && sed -i -e "s@<web_server>@apache@g" /etc/php-fpm.d/www.phpmyadmin.conf
 
-systemctl enable php-fpm
-systemctl start php-fpm
+systemctl enable php-fpm --now
 }
 
 # Ask which web server the user wants to use #
@@ -408,7 +410,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     yum install -y php php-mbstring php-fpm php-cli php-zip php-gd php-xml php-curl php-mysql mariadb-server tar zip unzip
 
     [ "$WEB_SERVER" == "nginx" ] && yum install -y epel-release && yum install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd #&& yum install -y libapache2-mod-php
+    [ "$WEB_SERVER" == "apache2" ] && yum install -y httpd
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "8" ]; then
@@ -425,7 +427,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf install -y mariadb-server
 
     [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd #&& dnf install -y libapache2-mod-php8.0
+    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd
 
     enable_all_services_centos
   elif [ "$OS_VER_MAJOR" == "9" ]; then
@@ -445,7 +447,7 @@ if [ "$OS_VER_MAJOR" == "7" ]; then
     dnf install -y mariadb-server
 
     [ "$WEB_SERVER" == "nginx" ] && dnf install -y nginx
-    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd && dnf install -y libapache2-mod-php
+    [ "$WEB_SERVER" == "apache2" ] && dnf install -y httpd
 
     enable_all_services_centos
 fi
@@ -564,6 +566,8 @@ case "$OS" in
 
         sed -i -e "s@<php_socket>@${PHP_SOCKET}@g" /etc/nginx/conf.d/phpmyadmin.conf
       elif [ "$WEB_SERVER" == "apache2" ]; then
+        #rm -rf /etc/nginx/conf.d/default
+
         mkdir -p /etc/httpd/sites-available
         mkdir -p /etc/httpd/sites-enabled
 
@@ -581,6 +585,8 @@ case "$OS" in
         # If SElinux is enabled, change some policies to avoid errors #
         setsebool -P httpd_can_network_connect on
         setsebool -P httpd_execmem on
+        setsebool -P httpd_unified on
+        chcon -R -t httpd_sys_rw_content_t /var/www/phpmyadmin/tmp
     fi
   ;;
 esac
