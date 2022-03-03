@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck disable=SC2002
 #shellcheck source=/dev/null
 
 set -e
@@ -13,24 +14,29 @@ set -e
 #
 ########################################################
 
-#### Fixed Variables ####
+# Get the latest version before running the script #
+get_release() {
+curl --silent \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/Ferks-FK/Pterodactyl-AutoAddons/releases/latest |
+  grep '"tag_name":' |
+  sed -E 's/.*"([^"]+)".*/\1/'
+}
 
-SCRIPT_VERSION="v3.3"
+# Fixed Variables #
+SCRIPT_VERSION="$(get_release)"
 SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
-PMA_VERSION="5.1.1"
+PMA_VERSION="5.1.3"
 MYSQL_DB="phpmyadmin"
 MYSQL_USER="pma"
 MYSQL_PASSWORD="$(openssl rand -base64 16)"
 KEY="$(openssl rand -base64 32)"
 CREATE_USER=false
 USERNAME=""
-PASSWORD=""
 MYSQL_ROOT_PASS=false
-MYSQL_PASS=""
 INFORMATIONS="/var/log/Pterodactyl-AutoAddons-informations"
 
-#### Update Variables ####
-
+# Update Variables #
 update_variables() {
 PMA_ARCH="$PTERO/resources/scripts/routers/ServerRouter.tsx"
 PMA_BUTTON_DATABASE_TAB="$PTERO/public/pma_redirect.html"
@@ -40,7 +46,7 @@ CONFIG_FILE="$PTERO/config/app.php"
 PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
 }
 
-
+# Visual Functions #
 print_brake() {
   for ((n = 0; n < $1; n++)); do
     echo -n "#"
@@ -49,26 +55,25 @@ print_brake() {
 }
 
 print_warning() {
-  YELLOW="\033[1;33m"
-  reset="\e[0m"
   echo ""
-  echo -e "* ${YELLOW}WARNING${reset}: $1"
+  echo -e "* ${YELLOW}WARNING${RESET}: $1"
   echo ""
 }
 
 print_error() {
-  red='\033[0;31m'
-  reset="\e[0m"
-
   echo ""
-  echo -e "* ${red}ERROR${reset}: $1"
+  echo -e "* ${RED}ERROR${RESET}: $1"
   echo ""
 }
-
 
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
 }
+
+GREEN="\e[0;92m"
+YELLOW="\033[1;33m"
+RED='\033[0;31m'
+RESET="\e[0m"
 
 password_input() {
   local __resultvar=$1
@@ -100,17 +105,7 @@ password_input() {
   eval "$__resultvar="'$result'""
 }
 
-
-#### Colors ####
-
-GREEN="\e[0;92m"
-YELLOW="\033[1;33m"
-red='\033[0;31m'
-reset="\e[0m"
-
-
-#### OS check ####
-
+# OS check #
 check_distro() {
   if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -141,14 +136,10 @@ check_distro() {
   OS_VER_MAJOR=$(echo "$OS_VER" | cut -d. -f1)
 }
 
-#### Find where pterodactyl is installed ####
-
+# Find where pterodactyl is installed #
 find_pterodactyl() {
-echo
-print_brake 47
-echo -e "* ${GREEN}Looking for your pterodactyl installation...${reset}"
-print_brake 47
-echo
+print "Looking for your pterodactyl installation..."
+
 sleep 2
 if [ -d "/var/www/pterodactyl" ]; then
     PTERO_INSTALL=true
@@ -166,47 +157,23 @@ fi
 update_variables
 }
 
-#### Verify Compatibility ####
-
+# Verify Compatibility #
 compatibility() {
-echo
-print_brake 57
-echo -e "* ${GREEN}Checking if the addon is compatible with your panel...${reset}"
-print_brake 57
-echo
+print "Checking if the addon is compatible with your panel..."
+
 sleep 2
-if [ -f "$CONFIG_FILE" ]; then
-  if [ "$PANEL_VERSION" == "1.6.6" ]; then
-      echo
-      print_brake 23
-      echo -e "* ${GREEN}Compatible Version!${reset}"
-      print_brake 23
-      echo
-    elif [ "$PANEL_VERSION" == "1.7.0" ]; then
-      echo
-      print_brake 23
-      echo -e "* ${GREEN}Compatible Version!${reset}"
-      print_brake 23
-      echo
-    else
-      echo
-      print_brake 24
-      echo -e "* ${red}Incompatible Version!${reset}"
-      print_brake 24
-      echo
-      exit 1
-  fi
+if [ "$PANEL_VERSION" == "1.6.6" ] || [ "$PANEL_VERSION" == "1.7.0" ]; then
+    print "Compatible Version!"
+  else
+    print_error "Incompatible Version!"
+    exit 1
 fi
 }
 
-#### Install Dependencies ####
-
+# Install Dependencies #
 dependencies() {
-echo
-print_brake 30
-echo -e "* ${GREEN}Installing dependencies...${reset}"
-print_brake 30
-echo
+print "Installing dependencies..."
+
 case "$OS" in
 debian | ubuntu)
 curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && apt-get install -y nodejs && apt-get install -y curl
@@ -218,20 +185,12 @@ centos)
 esac
 }
 
-
-#### Panel Backup ####
-
+# Panel Backup #
 backup() {
-echo
-print_brake 32
-echo -e "* ${GREEN}Performing security backup...${reset}"
-print_brake 32
-  if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
-    echo
-    print_brake 45
-    echo -e "* ${GREEN}There is already a backup, skipping step...${reset}"
-    print_brake 45
-    echo
+print "Performing security backup..."
+
+if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
+    print "There is already a backup, skipping step..."
   else
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
@@ -246,14 +205,10 @@ print_brake 32
 fi
 }
 
-
-#### Download Files ####
-
+# Download Files #
 download_files() {
-echo
-print_brake 25
-echo -e "* ${GREEN}Downloading files...${reset}"
-print_brake 25
+print "Downloading files..."
+
 cd "$PTERO/public"
 mkdir -p "$MYSQL_DB"
 cd "$MYSQL_DB"
@@ -265,11 +220,11 @@ mv -- * "$PTERO/public/$MYSQL_DB"
 cd "$PTERO/public/$MYSQL_DB"
 rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 rm -r config.sample.inc.php
-curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/config.inc.php
+curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_NavBar/config.inc.php
 cd "$PTERO"
 mkdir -p temp
 cd temp
-curl -sSLo PMA_Button_NavBar.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/PMA_Button_NavBar.tar.gz
+curl -sSLo PMA_Button_NavBar.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_NavBar/PMA_Button_NavBar.tar.gz
 tar -xzvf PMA_Button_NavBar.tar.gz
 cd PMA_Button_NavBar
 mv -f resources/scripts/routers/ServerRouter.tsx "$PMA_ARCH"
@@ -278,8 +233,7 @@ cd "$PTERO"
 rm -r temp
 }
 
-#### Set Permissions ####
-
+# Set Permissions #
 set_permissions() {
 cd /etc
 mkdir -p phpmyadmin
@@ -295,11 +249,10 @@ esac
 chmod -R 660 /etc/phpmyadmin
 }
 
-#### Check that the mysql root user has a password ####
-
+# Check that the mysql root user has a password #
 check_pass_mysql() {
 echo
-echo -e -n "* [${YELLOW}ATTENTION${reset}] Does the root user of your system have a password to access mysql? (y/N): "
+echo -ne "* [${YELLOW}ATTENTION${RESET}] Does the root user of your system have a password to access mysql? (y/N): "
 read -r ASK_MYSQL_PASSWORD
 if [[ "$ASK_MYSQL_PASSWORD" =~ [Yy] ]]; then
   password_input MYSQL_PASS "Please enter password now: " "Your password cannot be empty!"
@@ -307,13 +260,11 @@ if [[ "$ASK_MYSQL_PASSWORD" =~ [Yy] ]]; then
 fi
 }
 
-#### Configure PMA ####
-
+# Configure PMA #
 configure() {
-if [ -f "$FILE" ]; then
-  sed -i -e "s@<key>@$KEY@g" "$FILE"
-  sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
-fi
+sed -i -e "s@<key>@$KEY@g" "$FILE"
+sed -i -e "s@<password>@$MYSQL_PASSWORD@g" "$FILE"
+
 if [ "$MYSQL_ROOT_PASS" == true ]; then
     mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
     mysql -u root -p"$MYSQL_PASS" -e "CREATE DATABASE ${MYSQL_DB};"
@@ -336,8 +287,7 @@ fi
 sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
 }
 
-#### Check if the user you entered already exists in the database ####
-
+# Check if the user you entered already exists in the database #
 create_user_check() {
 if [ ! -e "$INFORMATIONS/check_user.txt" ]; then
   if [ "$MYSQL_ROOT_PASS" == true ]; then
@@ -349,7 +299,7 @@ sed -i '1d' "$INFORMATIONS/check_user.txt"
 fi
 if grep "$USERNAME" "$INFORMATIONS/check_user.txt" &>/dev/null; then
     echo
-    echo -e "* ${GREEN}$USERNAME ${red}It already exists in your database, try another one.${reset}"
+    echo -e "* ${GREEN}$USERNAME ${RED}It already exists in your database, try another one.${RESET}"
     echo
   else
     rm -r "$INFORMATIONS/check_user.txt"
@@ -357,11 +307,10 @@ if grep "$USERNAME" "$INFORMATIONS/check_user.txt" &>/dev/null; then
 fi
 }
 
-#### Ask the user if he wants to create the admin user ####
-
+# Ask the user if he wants to create the admin user #
 ask_create_user() {
 echo
-echo -e -n "* Do you want to create an administrator user for phpmyadmin access? (y/N): "
+echo -ne "* Do you want to create an administrator user for phpmyadmin access? (y/N): "
 read -r ASK_CREATE_USER
 if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   CREATE_USER=true
@@ -372,19 +321,15 @@ if [[ "$ASK_CREATE_USER" =~ [Yy] ]]; then
   done
   password_input PASSWORD "The password for access: " "Your password cannot be empty!"
   # Write the username to a file for the backup script to proceed later #
-  echo "$USERNAME" >> "/var/log/Pterodactyl-AutoAddons-informations/user.txt"
+  echo "$USERNAME" >> "$INFORMATIONS/user.txt"
 fi
 }
 
-#### Create the administrator user for phpmyadmin access ####
-
+# Create the administrator user for phpmyadmin access #
 create_user() {
 if [ "$CREATE_USER" == true ]; then
-  echo
-  print_brake 33
-  echo -e "* ${GREEN}Creating administrator user...${reset}"
-  print_brake 33
-  echo
+  print "Creating administrator user..."
+
   if [ "$MYSQL_ROOT_PASS" == true ]; then
       mysql -u root -p"$MYSQL_PASS" -e "CREATE USER '${USERNAME}'@'%' IDENTIFIED BY '${PASSWORD}';"
       mysql -u root -p"$MYSQL_PASS" -e "GRANT ALL PRIVILEGES ON *.* TO '${USERNAME}'@'%';"
@@ -401,32 +346,23 @@ if [ "$CREATE_USER" == true ]; then
 fi
 }
 
-#### Check if another conflicting addon is installed ####
-
+# Check if another conflicting addon is installed #
 check_conflict() {
-echo
-print_brake 66
-echo -e "* ${GREEN}Checking if a similar/conflicting addon is already installed...${reset}"
-print_brake 66
-echo
+print "Checking if a similar/conflicting addon is already installed..."
+
 sleep 2
 if [ -f "$PMA_BUTTON_DATABASE_TAB" ]; then
     echo
-    print_brake 70
-    echo -e "* ${red}The addon ${YELLOW}PMA Button Database Tab ${red}is already installed, aborting...${reset}"
-    print_brake 70
+    echo -e "* ${RED}The addon ${YELLOW}PMA Button Database Tab ${RED}is already installed, aborting...${RESET}"
     echo
     exit 1
 fi
 }
 
-#### Check if it is already installed ####
-
+# Check if it is already installed #
 verify_installation() {
   if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
-      print_brake 61
-      echo -e "* ${red}This addon is already installed in your panel, aborting...${reset}"
-      print_brake 61
+      print_error "This addon is already installed in your panel, aborting..."
       exit 1
     else
       dependencies
@@ -443,26 +379,22 @@ verify_installation() {
   fi
 }
 
-#### Write the informations to a file for a safety check of the backup script ####
-
+# Write the informations to a file for a safety check of the backup script #
 write_informations() {
-mkdir -p /var/log/Pterodactyl-AutoAddons-informations
+mkdir -p $INFORMATIONS
 # Write the password to a file for the backup script to proceed later #
-echo "$MYSQL_PASS" >> "/var/log/Pterodactyl-AutoAddons-informations/pass.txt"
+echo "$MYSQL_PASS" >> "$INFORMATIONS/pass.txt"
 # Write the result of the variable to a file for the backup script to proceed later #
-echo "$MYSQL_ROOT_PASS" >> "/var/log/Pterodactyl-AutoAddons-informations/check_variable.txt"
+echo "$MYSQL_ROOT_PASS" >> "$INFORMATIONS/check_variable.txt"
 # Just one warning :D #
-echo "Don't delete anything inside this folder, it is automatically deleted by the script later, so don't worry about that." >> "/var/log/Pterodactyl-AutoAddons-informations/README.txt"
+echo "Don't delete anything inside this folder, it is automatically deleted by the script later, so don't worry about that." >> "$INFORMATIONS/README.txt"
 }
 
-#### Panel Production ####
-
+# Panel Production #
 production() {
-echo
-print_brake 21
-echo -e "* ${GREEN}Producing panel...${reset}"
-print_brake 21
-echo
+print "Producing panel..."
+print_warning "This process takes a few minutes, please do not cancel it."
+
 if [ -d "$PTERO/node_modules" ]; then
     cd "$PTERO"
     yarn build:production
@@ -474,36 +406,41 @@ if [ -d "$PTERO/node_modules" ]; then
 fi
 }
 
-
 bye() {
 print_brake 50
 echo
 echo -e "${GREEN}* The addon ${YELLOW}PMA Button Navbar${GREEN} was successfully installed."
 echo -e "* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
-echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${reset}"
+echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${RESET}"
 echo
 print_brake 50
 }
 
-
-#### Exec Script ####
+# Exec Script #
 check_distro
 find_pterodactyl
 if [ "$PTERO_INSTALL" == true ]; then
-    echo
-    print_brake 66
-    echo -e "* ${GREEN}Installation of the panel found, continuing the installation...${reset}"
-    print_brake 66
-    echo
+    print "Installation of the panel found, continuing the installation..."
+
     compatibility
     check_conflict
     verify_installation
   elif [ "$PTERO_INSTALL" == false ]; then
-    echo
-    print_brake 66
-    echo -e "* ${red}The installation of your panel could not be located, aborting...${reset}"
-    print_brake 66
-    echo
-    exit 1
+    print_warning "The installation of your panel could not be located."
+    echo -e "* ${GREEN}EXAMPLE${RESET}: ${YELLOW}/var/www/mypanel${RESET}"
+    echo -ne "* Enter the pterodactyl installation directory manually: "
+    read -r MANUAL_DIR
+    if [ -d "$MANUAL_DIR" ]; then
+        print "Directory has been found!"
+        PTERO="$MANUAL_DIR"
+        echo "$MANUAL_DIR" >> "$INFORMATIONS/custom_directory.txt"
+        update_variables
+        compatibility
+        check_conflict
+        verify_installation
+      else
+        print_error "The directory you entered does not exist."
+        find_pterodactyl
+    fi
 fi
