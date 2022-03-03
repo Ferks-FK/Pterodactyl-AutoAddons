@@ -26,10 +26,10 @@ PMA_REDIRECT_FILE="${PTERO}/public/pma_redirect.html"
 PMA_NAME="${PTERO}/public/phpmyadmin"
 MC_PASTE="${PTERO}/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 FILES_IN_EDITOR="${PTERO}/resources/scripts/components/server/files/FileViewer.tsx"
-[ -f "${INFORMATIONS}/user.txt" ] && USERNAME="$(cat "${INFORMATIONS}/user.txt")"
-[ -f "${INFORMATIONS}/pass.txt" ] && PASSWORD="$(cat "${INFORMATIONS}/pass.txt")"
-[ -f "${INFORMATIONS}/check_variable.txt" ] && GET_INFO="$(cat "${INFORMATIONS}/check_variable.txt")"
-[ -f "${INFORMATIONS}/custom_directory.txt" ] && CUSTOM_DIRECTORY="$(cat "${INFORMATIONS}/custom_directory.txt")"
+if [ -f "${INFORMATIONS}/user.txt" ]; then USERNAME="$(cat "${INFORMATIONS}/user.txt")"; fi
+if [ -f "${INFORMATIONS}/pass.txt" ]; then PASSWORD="$(cat "${INFORMATIONS}/pass.txt")"; fi
+if [ -f "${INFORMATIONS}/check_variable.txt" ]; then GET_INFO="$(cat "${INFORMATIONS}/check_variable.txt")"; fi
+if [ -f "${INFORMATIONS}/custom_directory.txt" ]; then CUSTOM_DIRECTORY="$(cat "${INFORMATIONS}/custom_directory.txt")"; fi
 }
 
 # Visual Functions #
