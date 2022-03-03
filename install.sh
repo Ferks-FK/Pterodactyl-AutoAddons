@@ -12,9 +12,18 @@ set -e
 #
 ########################################################
 
-SCRIPT_VERSION="v3.3"
+# Get the latest version before running the script #
+get_release() {
+curl --silent \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/Ferks-FK/Pterodactyl-AutoAddons/releases/latest |
+  grep '"tag_name":' |
+  sed -E 's/.*"([^"]+)".*/\1/'
+}
 
+SCRIPT_VERSION="$(get_release)"
 
+# Visual Functions #
 print_brake() {
   for ((n = 0; n < $1; n++)); do
     echo -n "#"
@@ -26,31 +35,22 @@ hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
 }
 
-#### Colors ####
-
-reset="\e[0m"
-red='\033[0;31m'
+RESET="\e[0m"
+RED='\033[0;31m'
 
 error() {
-  red='\033[0;31m'
-  reset="\e[0m"
-
   echo ""
-  echo -e "* ${red}ERROR${reset}: $1"
+  echo -e "* ${RED}ERROR${RESET}: $1"
   echo ""
 }
 
-
-#### Check Sudo ####
-
+# Check Sudo #
 if [[ $EUID -ne 0 ]]; then
   echo "* This script must be executed with root privileges (sudo)." 1>&2
   exit 1
 fi
 
-
-#### Check Curl ####
-
+# Check Curl #
 if ! [ -x "$(command -v curl)" ]; then
   echo "* curl is required in order for this script to work."
   echo "* install using apt (Debian and derivatives) or yum/dnf (CentOS)"
@@ -59,7 +59,7 @@ fi
 
 cancel() {
 echo
-echo -e "* ${red}Installation Canceled!${reset}"
+echo -e "* ${RED}Installation Canceled!${RESET}"
 done=true
 exit 1
 }
@@ -78,39 +78,39 @@ print_brake 70
 echo
 
 Backup() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/backup.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/backup.sh)
 }
 
 More_Buttons() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Buttons/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/More_Buttons/build.sh)
 }
 
 More_Server_Info() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/More_Server_Info/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/More_Server_Info/build.sh)
 }
 
 Server_Router_Icons() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Server_Router_Icons/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Server_Router_Icons/build.sh)
 }
 
 PMA_Button_NavBar() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_NavBar/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_NavBar/build.sh)
 }
 
 PMA_Button_Database_Tab() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/PMA_Button_Database_Tab/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/build.sh)
 }
 
 MC_Paste() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/MC_Paste/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/MC_Paste/build.sh)
 }
 
 Bigger_Console() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Bigger_Console/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Bigger_Console/build.sh)
 }
 
 Files_In_Editor() {
-bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/${SCRIPT_VERSION}/addons/version1.x/Files_In_Editor/build.sh)
+bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Files_In_Editor/build.sh)
 }
 
 
