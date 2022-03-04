@@ -222,14 +222,10 @@ print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
 if [ -f "$MC_PASTE" ]; then
-    echo
-    echo -e "* ${RED}The addon ${YELLOW}MC Paste ${RED}is already installed, aborting...${RESET}"
-    echo
+    print_warning "The addon ${YELLOW}MC Paste${RESET} is already installed, aborting..."
     exit 1
   elif grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
-    echo
-    echo -e "* ${RED}The addon ${YELLOW}Bigger Console ${RED}is already installed, aborting...${RESET}"
-    echo
+    print_warning "The addon ${YELLOW}Bigger Console${RESET} is already installed, aborting..."
     exit 1
 fi
 }

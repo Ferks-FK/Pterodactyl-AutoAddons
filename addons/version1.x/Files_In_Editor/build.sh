@@ -135,9 +135,7 @@ if [ "$PANEL_VERSION" == "1.6.6" ] || [ "$PANEL_VERSION" == "1.7.0" ]; then
 fi
 }
 
-
-#### Install Dependencies ####
-
+# Install Dependencies #
 dependencies() {
 print "Installing dependencies..."
 

@@ -20,6 +20,7 @@ SUPPORT_LINK="https://discord.gg/2vmFnKtBPQ"
 # Update Variables #
 update_variables() {
 SERVER_ROUTER="$PTERO/resources/scripts/routers/ServerRouter.tsx"
+CONFIG_FILE="$PTERO/config/app.php"
 PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
 }
 
@@ -143,11 +144,7 @@ backup() {
 print "Performing security backup..."
 
 if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
-    echo
-    print_brake 45
-    echo -e "* ${GREEN}There is already a backup, skipping step...${RESET}"
-    print_brake 45
-    echo
+    print "There is already a backup, skipping step..."
   else
     cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then

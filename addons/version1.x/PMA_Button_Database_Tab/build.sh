@@ -360,9 +360,7 @@ print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
 if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
-    echo
-    echo -e "* ${RED}The addon ${YELLOW}PMA Button Navbar ${RED}is already installed, aborting...${RESET}"
-    echo
+    print_warning "The addon ${YELLOW}PMA Button Navbar${RESET} is already installed, aborting..."
     exit 1
 fi
 }
@@ -370,9 +368,7 @@ fi
 # Check if it is already installed #
 verify_installation() {
   if [ -f "$PMA_ARCH" ]; then
-      print_brake 61
-      echo -e "* ${RED}This addon is already installed in your panel, aborting...${RESET}"
-      print_brake 61
+      print_error "This addon is already installed in your panel, aborting..."
       exit 1
     else
       dependencies

@@ -66,6 +66,12 @@ print_error() {
   echo ""
 }
 
+print() {
+  echo ""
+  echo -e "* ${GREEN}$1${RESET}"
+  echo ""
+}
+
 hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
 }
@@ -352,9 +358,7 @@ print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
 if [ -f "$PMA_BUTTON_DATABASE_TAB" ]; then
-    echo
-    echo -e "* ${RED}The addon ${YELLOW}PMA Button Database Tab ${RED}is already installed, aborting...${RESET}"
-    echo
+    print_warning "The addon ${YELLOW}PMA Button Database Tab${RESET} is already installed, aborting..."
     exit 1
 fi
 }
