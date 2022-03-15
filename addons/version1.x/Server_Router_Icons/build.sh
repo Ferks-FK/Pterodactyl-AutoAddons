@@ -164,7 +164,7 @@ print "Downloading files..."
 
 mkdir -p $PTERO/temp
 curl -sSLo $PTERO/temp/Server_Router_Icons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Server_Router_Icons/Server_Router_Icons.tar.gz
-tar -xzvf $PTERO/temp/Server_Router_Icons.tar.gz
+tar -xzvf $PTERO/temp/Server_Router_Icons.tar.gz -C $PTERO/temp
 cp -rf -- $PTERO/temp/Server_Router_Icons/* "$PTERO"
 rm -rf $PTERO/temp
 }
