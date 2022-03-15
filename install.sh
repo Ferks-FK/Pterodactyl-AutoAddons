@@ -21,6 +21,7 @@ curl --silent \
   sed -E 's/.*"([^"]+)".*/\1/'
 }
 
+GITHUB_STATUS_URL="https://www.githubstatus.com"
 SCRIPT_VERSION="$(get_release)"
 
 # Visual Functions #
@@ -35,6 +36,7 @@ hyperlink() {
   echo -e "\e]8;;${1}\a${1}\e]8;;\a"
 }
 
+YELLOW="\033[1;33m"
 RESET="\e[0m"
 RED='\033[0;31m'
 
@@ -47,6 +49,14 @@ error() {
 # Check Sudo #
 if [[ $EUID -ne 0 ]]; then
   echo "* This script must be executed with root privileges (sudo)." 1>&2
+  exit 1
+fi
+
+# Check Git #
+if [ -z "$SCRIPT_VERSION" ]; then
+  error "Could not get the version of the script using GitHub."
+  echo "* Please check on the site below if the 'API Requests' are as normal status."
+  echo -e "${YELLOW}$(hyperlink "$GITHUB_STATUS_URL")${RESET}"
   exit 1
 fi
 
