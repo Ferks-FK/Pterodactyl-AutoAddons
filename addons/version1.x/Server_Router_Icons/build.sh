@@ -162,21 +162,25 @@ fi
 download_files() {
 print "Downloading files..."
 
-curl -o "$SERVER_ROUTER" https://bin.harryw.link/raw/baqazehowu
+mkdir -p $PTERO/temp
+curl -sSLo $PTERO/temp/Server_Router_Icons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Server_Router_Icons/Server_Router_Icons.tar.gz
+tar -xzvf $PTERO/temp/Server_Router_Icons.tar.gz
+cp -rf -- $PTERO/temp/Server_Router_Icons/* "$PTERO"
+rm -rf $PTERO/temp
 }
 
 # Check if it is already installed #
 verify_installation() {
-  if grep "faTerminal" "$SERVER_ROUTER" &>/dev/null; then
-      print_error "This addon is already installed in your panel, aborting..."
-      exit 1
-    else
-      dependencies
-      backup
-      download_files
-      production
-      bye
-  fi
+if grep "faTerminal" "$SERVER_ROUTER" &>/dev/null; then
+    print_error "This addon is already installed in your panel, aborting..."
+    exit 1
+  else
+    dependencies
+    backup
+    download_files
+    production
+    bye
+fi
 }
 
 # Panel Production #
@@ -199,8 +203,8 @@ bye() {
 print_brake 50
 echo
 echo -e "${GREEN}* The addon ${YELLOW}Server Router Icons${GREEN} was successfully installed."
-echo -e "* Leave a review here: https://pterodactylmarket.com/resource/382"
-echo -e "* A security backup of your panel has been created."
+echo -e "* Leave a review here: ${YELLOW}$(hyperlink "https://pterodactylmarket.com/resource/382")${RESET}"
+echo -e "${GREEN}* A security backup of your panel has been created."
 echo -e "* Thank you for using this script."
 echo -e "* Support group: ${YELLOW}$(hyperlink "$SUPPORT_LINK")${RESET}"
 echo
