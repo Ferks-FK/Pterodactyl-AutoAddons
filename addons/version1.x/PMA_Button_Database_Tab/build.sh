@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC2002
 #shellcheck source=/dev/null
 
 set -e
@@ -43,7 +42,7 @@ PMA_BUTTON_NAVBAR="$PTERO/resources/scripts/routers/ServerRouter.tsx"
 FILE="$PTERO/public/$MYSQL_DB/config.inc.php"
 SQL="$PTERO/public/$MYSQL_DB/sql"
 CONFIG_FILE="$PTERO/config/app.php"
-PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
+PANEL_VERSION="$(grep "'version'" "$CONFIG_FILE" | cut -c18-25 | sed "s/[',]//g")"
 }
 
 # Visual Functions #

@@ -1,5 +1,4 @@
 #!/bin/bash
-#shellcheck disable=SC2002
 #shellcheck source=/dev/null
 
 set -e
@@ -31,7 +30,7 @@ SUPPORT_LINK="https://discord.gg/buDBbSGJmQ"
 update_variables() {
 MORE_SERVER="$PTERO/resources/views/admin/servers/index.blade.php"
 CONFIG_FILE="$PTERO/config/app.php"
-PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
+PANEL_VERSION="$(grep "'version'" "$CONFIG_FILE" | cut -c18-25 | sed "s/[',]//g")"
 }
 
 # Visual Functions #

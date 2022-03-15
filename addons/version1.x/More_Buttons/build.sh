@@ -1,5 +1,4 @@
 #!/bin/bash
-#shellcheck disable=SC2002
 #shellcheck disable=SC2016
 #shellcheck source=/dev/null
 
@@ -36,7 +35,7 @@ MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
 MC_PASTE="$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php"
 BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
 CONFIG_FILE="$PTERO/config/app.php"
-PANEL_VERSION=$(cat "$CONFIG_FILE" | grep -n ^ | grep ^12: | cut -d: -f2 | cut -c18-23 | sed "s/'//g")
+PANEL_VERSION="$(grep "'version'" "$CONFIG_FILE" | cut -c18-25 | sed "s/[',]//g")"
 }
 
 # Visual Functions #
