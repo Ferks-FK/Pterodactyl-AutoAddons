@@ -157,21 +157,16 @@ backup() {
 print "Performing security backup..."
 
 if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
-    echo
-    print_brake 45
-    echo -e "* ${GREEN}There is already a backup, skipping step...${RESET}"
-    print_brake 45
-    echo
+    print "There is already a backup, skipping step..."
   else
-    cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
       else
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
     fi
 fi
 }
@@ -180,28 +175,23 @@ fi
 download_files() {
 print "Downloading files..."
 
-cd "$PTERO"
-mkdir -p temp
-cd temp
-curl -sSLo MC_Paste.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/MC_Paste/MC_Paste.tar.gz
-tar -xzvf MC_Paste.tar.gz
-cd MC_Paste
-cp -rf -- * "$PTERO"
-cd "$PTERO"
-rm -r temp
+mkdir -p $PTERO/temp
+curl -sSLo $PTERO/temp/MC_Paste.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/MC_Paste/MC_Paste.tar.gz
+tar -xzvf $PTERO/temp/MC_Paste.tar.gz -C $PTERO/temp
+cp -rf -- $PTERO/temp/MC_Paste/* "$PTERO"
+rm -rf $PTERO/temp
 }
 
 # Configure MC Paste #
 configure() {
-cd "$PTERO"
-chmod -R 755 storage/* bootstrap/cache
+chmod -R 755 $PTERO/storage/* $PTERO/bootstrap/cache
 [ "$OS" == "centos" ] && export PATH=/usr/local/bin:$PATH
-COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader
-mysql -u root "panel" < sql/create_mcpaste_variables.sql
-php artisan view:clear
-php artisan config:clear
-php artisan queue:restart
-rm -r sql
+COMPOSER_ALLOW_SUPERUSER=1 composer install -d $PTERO --no-dev --optimize-autoloader
+mysql -u root "panel" < $PTERO/sql/create_mcpaste_variables.sql
+php $PTERO/artisan view:clear
+php $PTERO/artisan config:clear
+php $PTERO/artisan queue:restart
+rm -rf $PTERO/sql
 production
 bye
 }
@@ -239,15 +229,13 @@ print "Producing panel..."
 print_warning "This process takes a few minutes, please do not cancel it."
 
 if [ -d "$PTERO/node_modules" ]; then
-    cd "$PTERO"
-    yarn add strip-ansi
-    yarn build:production
+    yarn --cwd $PTERO add strip-ansi
+    yarn --cwd $PTERO build:production
   else
     npm i -g yarn
-    cd "$PTERO"
-    yarn install
-    yarn add strip-ansi
-    yarn build:production
+    yarn --cwd $PTERO install
+    yarn --cwd $PTERO add strip-ansi
+    yarn --cwd $PTERO build:production
 fi
 }
 

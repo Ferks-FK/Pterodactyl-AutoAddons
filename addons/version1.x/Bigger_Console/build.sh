@@ -158,15 +158,14 @@ print "Performing security backup..."
 if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
     print "There is already a backup, skipping step..."
   else
-    cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
       else
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
     fi
 fi
 }
@@ -175,15 +174,11 @@ fi
 download_files() {
 print "Downloading files..."
 
-cd "$PTERO"
-mkdir -p temp
-cd temp
-curl -sSLo Bigger_Console.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Bigger_Console/Bigger_Console.tar.gz
-tar -xzvf Bigger_Console.tar.gz
-cd Bigger_Console
-cp -rf -- * "$PTERO"
-cd "$PTERO"
-rm -r temp
+mkdir -p $PTERO/temp
+curl -sSLo $PTERO/temp/Bigger_Console.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Bigger_Console/Bigger_Console.tar.gz
+tar -xzvf $PTERO/temp/Bigger_Console.tar.gz -C $PTERO/temp
+cp -rf -- $PTERO/temp/Bigger_Console/* "$PTERO"
+rm -rf $PTERO/temp
 }
 
 # Check if it is already installed #
@@ -220,13 +215,11 @@ print "Producing panel..."
 print_warning "This process takes a few minutes, please do not cancel it."
 
 if [ -d "$PTERO/node_modules" ]; then
-    cd "$PTERO"
-    yarn build:production
+    yarn --cwd $PTERO build:production
   else
     npm i -g yarn
-    cd "$PTERO"
-    yarn install
-    yarn build:production
+    yarn --cwd $PTERO install
+    yarn --cwd $PTERO build:production
 fi
 }
 

@@ -13,7 +13,17 @@ set -e
 #
 ########################################################
 
+# Get the latest version before running the script #
+get_release() {
+curl --silent \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/Ferks-FK/Pterodactyl-AutoAddons/releases/latest |
+  grep '"tag_name":' |
+  sed -E 's/.*"([^"]+)".*/\1/'
+}
+
 # Fixed Variables #
+SCRIPT_VERSION="$(get_release)"
 SUPPORT_LINK="https://discord.gg/2vmFnKtBPQ"
 
 # Update Variables #
@@ -146,11 +156,11 @@ if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
     print "There is already a backup, skipping step..."
   else
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env -C $PTERO
         mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
         mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
       else
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env -C $PTERO
         mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
         mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
     fi

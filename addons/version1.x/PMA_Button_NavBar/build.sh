@@ -266,7 +266,7 @@ if [ "$MYSQL_ROOT_PASS" == true ]; then
     mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/create_tables.sql"
     mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/upgrade_tables_mysql_4_1_2+.sql"
     mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/upgrade_tables_4_7_0+.sql"
-  elif [ "$MYSQL_ROOT_PASS" == false ]; then
+  else
     mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
     mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
     mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
@@ -289,9 +289,7 @@ if [ ! -e "$INFORMATIONS/check_user.txt" ]; then
 sed -i '1d' "$INFORMATIONS/check_user.txt"
 fi
 if grep "$USERNAME" "$INFORMATIONS/check_user.txt" &>/dev/null; then
-    echo
-    echo -e "* ${GREEN}$USERNAME ${RED}It already exists in your database, try another one.${RESET}"
-    echo
+    print_error "${GREEN}$USERNAME${RESET} It already exists in your database, try another one."
   else
     rm -r "$INFORMATIONS/check_user.txt"
     return 1
@@ -350,7 +348,7 @@ fi
 
 # Check if it is already installed #
 verify_installation() {
-  if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
+  if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_ARCH" &>/dev/null; then
       print_error "This addon is already installed in your panel, aborting..."
       exit 1
     else

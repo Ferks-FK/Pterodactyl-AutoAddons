@@ -39,8 +39,8 @@ INFORMATIONS="/var/log/Pterodactyl-AutoAddons-informations"
 update_variables() {
 PMA_ARCH="$PTERO/public/pma_redirect.html"
 PMA_BUTTON_NAVBAR="$PTERO/resources/scripts/routers/ServerRouter.tsx"
-FILE="$PTERO/public/$MYSQL_DB/config.inc.php"
-SQL="$PTERO/public/$MYSQL_DB/sql"
+FILE="$PTERO/public/phpmyadmin/config.inc.php"
+SQL="$PTERO/public/phpmyadmin/sql"
 CONFIG_FILE="$PTERO/config/app.php"
 PANEL_VERSION="$(grep "'version'" "$CONFIG_FILE" | cut -c18-25 | sed "s/[',]//g")"
 }
@@ -198,15 +198,14 @@ print "Performing security backup..."
 if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
     print "There is already a backup, skipping step..."
   else
-    cd "$PTERO"
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "node_modules" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
       else
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- * .env
-        mkdir -p "PanelBackup[Auto-Addons]"
-        mv "PanelBackup[Auto-Addons].tar.gz" "PanelBackup[Auto-Addons]"
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env -C $PTERO
+        mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
+        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
     fi
 fi
 }
@@ -215,43 +214,30 @@ fi
 download_files() {
 print "Downloading files..."
 
-cd "$PTERO/public"
-mkdir -p "$MYSQL_DB"
-cd "$MYSQL_DB"
-curl -sSLo phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
-tar -xzvf phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
-cd phpMyAdmin-"${PMA_VERSION}"-all-languages
-mv -- * "$PTERO/public/$MYSQL_DB"
-cd "$PTERO/public/$MYSQL_DB"
-rm -r phpMyAdmin-"${PMA_VERSION}"-all-languages phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
-rm -r config.sample.inc.php
-curl -sSLo config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
-cd "$PTERO"
-mkdir -p temp
-cd temp
-curl -sSLo PMA_Button_Database_Tab.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
-tar -xzvf PMA_Button_Database_Tab.tar.gz
-cd PMA_Button_Database_Tab/public
-mv -f pma_redirect.html "$PTERO/public"
-cd "$PTERO/temp/PMA_Button_Database_Tab/resources/scripts/components/server/databases"
-mv -f DatabaseRow.tsx "$PTERO/resources/scripts/components/server/databases"
-cd "$PTERO"
-rm -r temp
+mkdir -p "$PTERO/public/phpmyadmin"
+mkdir -p "$PTERO/public/phpmyadmin/tmp" && chmod 777 "$PTERO/public/phpmyadmin/tmp" -R
+curl -sSLo "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+tar -xzvf "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" -C "$PTERO/public/phpmyadmin"
+mv -- "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages/*" "$PTERO/public/phpmyadmin"
+rm -r "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages" "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" "$PTERO/public/phpmyadmin/config.sample.inc.php"
+curl -sSLo "$PTERO/public/phpmyadmin/config.inc.php" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
+mkdir -p $PTERO/temp
+curl -sSLo "$PTERO/temp/PMA_Button_Database_Tab.tar.gz" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
+tar -xzvf "$PTERO/temp/PMA_Button_Database_Tab.tar.gz" -C $PTERO/temp
+mv -- "$PTERO/temp/PMA_Button_Database_Tab/*" $PTERO
+rm -r $PTERO/temp
 }
 
 # Set Permissions #
 set_permissions() {
-cd /etc
-mkdir -p phpmyadmin
-cd phpmyadmin
-mkdir save upload
+mkdir -p "/etc/phpmyadmin/save"
+mkdir -p "/etc/phpmyadmin/upload"
 case "$OS" in
 debian | ubuntu)
   chown -R www-data.www-data /etc/phpmyadmin
 ;;
 centos)
   chown -R nginx.nginx /etc/phpmyadmin
-;;
 esac
 chmod -R 660 /etc/phpmyadmin
 }
@@ -277,19 +263,17 @@ if [ "$MYSQL_ROOT_PASS" == true ]; then
     mysql -u root -p"$MYSQL_PASS" -e "CREATE DATABASE ${MYSQL_DB};"
     mysql -u root -p"$MYSQL_PASS" -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
     mysql -u root -p"$MYSQL_PASS" -e "FLUSH PRIVILEGES;"
-    cd "$SQL"
-    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < create_tables.sql
-    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
-  elif [ "$MYSQL_ROOT_PASS" == false ]; then
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/create_tables.sql"
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/upgrade_tables_mysql_4_1_2+.sql"
+    mysql -u root -p"$MYSQL_PASS" "$MYSQL_DB" < "$SQL/upgrade_tables_4_7_0+.sql"
+  else
     mysql -u root -e "CREATE USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED BY '${MYSQL_PASSWORD}';"
     mysql -u root -e "CREATE DATABASE ${MYSQL_DB};"
     mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE ON ${MYSQL_DB}.* TO '${MYSQL_USER}'@'127.0.0.1';"
     mysql -u root -e "FLUSH PRIVILEGES;"
-    cd "$SQL"
-    mysql -u root "$MYSQL_DB" < create_tables.sql
-    mysql -u root "$MYSQL_DB" < upgrade_tables_mysql_4_1_2+.sql
-    mysql -u root "$MYSQL_DB" < upgrade_tables_4_7_0+.sql
+    mysql -u root "$MYSQL_DB" < "$SQL/create_tables.sql"
+    mysql -u root "$MYSQL_DB" < "$SQL/upgrade_tables_mysql_4_1_2+.sql"
+    mysql -u root "$MYSQL_DB" < "$SQL/upgrade_tables_4_7_0+.sql"
 fi
 sed -i -e "s@<pma>@$MYSQL_DB@g" "$PMA_ARCH"
 }
@@ -305,9 +289,7 @@ if [ ! -e "$INFORMATIONS/check_user.txt" ]; then
 sed -i '1d' "$INFORMATIONS/check_user.txt"
 fi
 if grep "$USERNAME" "$INFORMATIONS/check_user.txt" &>/dev/null; then
-    echo
-    echo -e "* ${GREEN}$USERNAME ${RED}It already exists in your database, try another one.${RESET}"
-    echo
+    print_error "${GREEN}$USERNAME${RESET} It already exists in your database, try another one."
   else
     rm -r "$INFORMATIONS/check_user.txt"
     return 1
@@ -358,7 +340,7 @@ check_conflict() {
 print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
-if grep "<a href='/$MYSQL_DB' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
+if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
     print_warning "The addon ${YELLOW}PMA Button Navbar${RESET} is already installed, aborting..."
     exit 1
 fi
@@ -366,22 +348,22 @@ fi
 
 # Check if it is already installed #
 verify_installation() {
-  if [ -f "$PMA_ARCH" ]; then
-      print_error "This addon is already installed in your panel, aborting..."
-      exit 1
-    else
-      dependencies
-      backup
-      download_files
-      set_permissions
-      check_pass_mysql
-      write_informations
-      configure
-      ask_create_user
-      create_user
-      production
-      bye
-  fi
+if [ -f "$PMA_ARCH" ]; then
+    print_error "This addon is already installed in your panel, aborting..."
+    exit 1
+  else
+    dependencies
+    backup
+    download_files
+    set_permissions
+    check_pass_mysql
+    write_informations
+    configure
+    ask_create_user
+    create_user
+    production
+    bye
+fi
 }
 
 # Write the informations to a file for a safety check of the backup script #
@@ -401,13 +383,11 @@ print "Producing panel..."
 print_warning "This process takes a few minutes, please do not cancel it."
 
 if [ -d "$PTERO/node_modules" ]; then
-    cd "$PTERO"
-    yarn build:production
+    yarn --cwd $PTERO build:production
   else
     npm i -g yarn
-    cd "$PTERO"
-    yarn install
-    yarn build:production
+    yarn --cwd $PTERO install
+    yarn --cwd $PTERO build:production
 fi
 }
 
