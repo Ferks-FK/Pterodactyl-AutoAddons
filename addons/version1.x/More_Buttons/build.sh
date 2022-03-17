@@ -172,13 +172,13 @@ if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
     print "There is already a backup, skipping step..."
   else
     if [ -d "$PTERO/node_modules" ]; then
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env -C $PTERO
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" --exclude "$PTERO/node_modules" -- $PTERO/* $PTERO/.env
         mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
-        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
+        mv "PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
       else
-        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env -C $PTERO
+        tar -czvf "PanelBackup[Auto-Addons].tar.gz" -- $PTERO/* $PTERO/.env
         mkdir -p "$PTERO/PanelBackup[Auto-Addons]"
-        mv "$PTERO/PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
+        mv "PanelBackup[Auto-Addons].tar.gz" "$PTERO/PanelBackup[Auto-Addons]"
     fi
 fi
 }
