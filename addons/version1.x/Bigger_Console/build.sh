@@ -5,7 +5,7 @@
 set -e
 
 ########################################################
-# 
+#
 #         Pterodactyl-AutoAddons Installation
 #
 #         Created and maintained by Ferks-FK
