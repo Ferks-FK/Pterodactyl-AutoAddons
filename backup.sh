@@ -175,9 +175,10 @@ restore() {
 print "Checking for a backup..."
 
 if [ -d "$PTERO/PanelBackup[Auto-Addons]" ]; then
-    tar -xzvf "$PTERO/PanelBackup[Auto-Addons]/PanelBackup[Auto-Addons].tar.gz" -C "$PTERO/PanelBackup[Auto-Addons]"
-    rm -R "PanelBackup[Auto-Addons].tar.gz"
-    cp -r -- "$PTERO/PanelBackup[Auto-Addons]/PanelBackup[Auto-Addons]/*" .env "$PTERO"
+    cd "$PTERO/PanelBackup[Auto-Addons]"
+    tar -xzvf "$PTERO/PanelBackup[Auto-Addons]/PanelBackup[Auto-Addons].tar.gz"
+    rm -r "$PTERO/PanelBackup[Auto-Addons]/PanelBackup[Auto-Addons].tar.gz"
+    cp -r -- * .env "$PTERO"
     rm -rf "$PTERO/PanelBackup[Auto-Addons]"
   else
     print_error "There was no backup to restore, Aborting..."
