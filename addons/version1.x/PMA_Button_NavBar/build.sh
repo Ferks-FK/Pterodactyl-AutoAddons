@@ -222,15 +222,15 @@ mkdir -p "$PTERO/public/phpmyadmin"
 mkdir -p "$PTERO/public/phpmyadmin/tmp" && chmod 777 "$PTERO/public/phpmyadmin/tmp" -R
 curl -sSLo "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
 tar -xzvf "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" -C "$PTERO/public/phpmyadmin"
-mv -- "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages/*" "$PTERO/public/phpmyadmin"
+cp -rf -- "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages/*" "$PTERO/public/phpmyadmin"
 rm -r "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages" "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" "$PTERO/public/phpmyadmin/config.sample.inc.php"
 curl -sSLo "$PTERO/public/phpmyadmin/config.inc.php" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_NavBar/config.inc.php
 mkdir -p "$PTERO/temp"
 curl -sSLo "$PTERO/temp/PMA_Button_NavBar.tar.gz" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_NavBar/PMA_Button_NavBar.tar.gz
 tar -xzvf "$PTERO/temp/PMA_Button_NavBar.tar.gz" -C "$PTERO/temp"
-mv -- "$PTERO/temp/PMA_Button_NavBar/*" "$PTERO"
+cp -rf -- "$PTERO/temp/PMA_Button_NavBar/*" "$PTERO"
 sed -i -e "s@<code>@<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>@g" "$PMA_ARCH"
-rm -r "$PTERO/temp"
+rm -rf "$PTERO/temp"
 }
 
 # Set Permissions #
