@@ -219,17 +219,17 @@ fi
 download_files() {
 print "Downloading files..."
 
-mkdir -p "$PTERO/public/phpmyadmin"
-mkdir -p "$PTERO/public/phpmyadmin/tmp" && chmod 777 "$PTERO/public/phpmyadmin/tmp" -R
-curl -sSLo "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
-tar -xzvf "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" -C "$PTERO/public/phpmyadmin"
-cp -rf -- "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages/*" "$PTERO/public/phpmyadmin"
-rm -r "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages" "$PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz" "$PTERO/public/phpmyadmin/config.sample.inc.php"
-curl -sSLo "$PTERO/public/phpmyadmin/config.inc.php" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
+mkdir -p $PTERO/public/phpmyadmin
+mkdir -p $PTERO/public/phpmyadmin/tmp && chmod 777 $PTERO/public/phpmyadmin/tmp -R
+curl -sSLo $PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz https://files.phpmyadmin.net/phpMyAdmin/"${PMA_VERSION}"/phpMyAdmin-"${PMA_VERSION}"-all-languages.tar.gz
+tar -xzvf $PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz -C $PTERO/public/phpmyadmin
+cp -rf -- $PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages/* $PTERO/public/phpmyadmin
+rm -r $PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages $PTERO/public/phpmyadmin/phpMyAdmin-${PMA_VERSION}-all-languages.tar.gz $PTERO/public/phpmyadmin/config.sample.inc.php
+curl -sSLo $PTERO/public/phpmyadmin/config.inc.php https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/config.inc.php
 mkdir -p $PTERO/temp
-curl -sSLo "$PTERO/temp/PMA_Button_Database_Tab.tar.gz" https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
-tar -xzvf "$PTERO/temp/PMA_Button_Database_Tab.tar.gz" -C $PTERO/temp
-cp -rf "$PTERO/temp/PMA_Button_Database_Tab/*" $PTERO
+curl -sSLo $PTERO/temp/PMA_Button_Database_Tab.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/PMA_Button_Database_Tab/PMA_Button_Database_Tab.tar.gz
+tar -xzvf $PTERO/temp/PMA_Button_Database_Tab.tar.gz -C $PTERO/temp
+cp -rf $PTERO/temp/PMA_Button_Database_Tab/* $PTERO
 rm -rf $PTERO/temp
 }
 
