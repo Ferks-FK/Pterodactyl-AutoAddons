@@ -32,7 +32,6 @@ update_variables() {
 BIGGER_CONSOLE="$PTERO/resources/scripts/components/server/ServerConsole.tsx"
 MORE_BUTTONS="$PTERO/resources/scripts/components/server/MoreButtons.tsx"
 MC_PASTE="$PTERO/app/Repositories/Eloquent/MCPasteVariableRepository.php"
-ANIMATED_GRAPHICS="$PTERO/resources/scripts/components/server/StatGraphs.tsx"
 CONFIG_FILE="$PTERO/config/app.php"
 PANEL_VERSION="$(grep "'version'" "$CONFIG_FILE" | cut -c18-25 | sed "s/[',]//g")"
 }
@@ -211,9 +210,6 @@ if [ -f "$MORE_BUTTONS" ]; then
     exit 1
   elif [ -f "$MC_PASTE" ]; then
     print_warning "The addon ${YELLOW}MC Paste${RESET} is already installed, aborting..."
-    exit 1
-  elif grep -q "animateRotate" "$ANIMATED_GRAPHICS"; then
-    print_warning "The addon ${YELLOW}Animated Graphics${RESET} is already installed, aborting..."
     exit 1
 fi
 }
