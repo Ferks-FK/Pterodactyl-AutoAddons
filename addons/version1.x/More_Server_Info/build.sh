@@ -185,7 +185,7 @@ rm -rf $PTERO/temp
 
 # Check if it is already installed #
 verify_installation() {
-if grep "Memory" "$MORE_SERVER"; then
+if grep -q "Installed By Auto-Addons" "$MORE_SERVER"; then
     print_error "This addon is already installed in your panel, aborting..."
     exit 1
   else

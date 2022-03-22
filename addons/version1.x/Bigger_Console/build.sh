@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC2016
 #shellcheck source=/dev/null
 
 set -e
@@ -188,7 +187,7 @@ rm -rf $PTERO/temp
 
 # Check if it is already installed #
 verify_installation() {
-if grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
+if grep -q "Installed By Auto-Addons" "$BIGGER_CONSOLE"; then
     print_error "This addon is already installed in your panel, aborting..."
     exit 1
   else

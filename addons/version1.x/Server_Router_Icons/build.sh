@@ -185,7 +185,7 @@ rm -rf $PTERO/temp
 
 # Check if it is already installed #
 verify_installation() {
-if grep "faTerminal" "$SERVER_ROUTER" &>/dev/null; then
+if grep -q "Installed By Auto-Addons" "$SERVER_ROUTER"; then
     print_error "This addon is already installed in your panel, aborting..."
     exit 1
   else

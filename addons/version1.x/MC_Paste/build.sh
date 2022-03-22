@@ -1,5 +1,4 @@
 #!/bin/bash
-#shellcheck disable=SC2016
 #shellcheck source=/dev/null
 
 set -e
@@ -222,7 +221,7 @@ sleep 2
 if [ -f "$MORE_BUTTONS" ]; then
     print_warning "The addon ${YELLOW}More Buttons${RESET} is already installed, aborting..."
     exit 1
-  elif grep '<div css={tw`rounded bg-yellow-500 p-3`}>' "$BIGGER_CONSOLE" &>/dev/null; then
+  elif grep -q "Installed By Auto-Addons" "$BIGGER_CONSOLE"; then
     print_warning "The addon ${YELLOW}Bigger Console${RESET} is already installed, aborting..."
     exit 1
 fi

@@ -345,7 +345,7 @@ check_conflict() {
 print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
-if grep "<a href='/phpmyadmin' target='_blank'>PhpMyAdmin</a>" "$PMA_BUTTON_NAVBAR" &>/dev/null; then
+if grep -q "Installed By Auto-Addons" "$PMA_BUTTON_NAVBAR"; then
     print_warning "The addon ${YELLOW}PMA Button Navbar${RESET} is already installed, aborting..."
     exit 1
 fi
