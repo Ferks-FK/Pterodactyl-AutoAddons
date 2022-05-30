@@ -179,9 +179,25 @@ download_files() {
 print "Downloading files..."
 
 mkdir -p $PTERO/temp
-curl -sSLo $PTERO/temp/Bigger_Console.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Bigger_Console/Bigger_Console.tar.gz
-tar -xzvf $PTERO/temp/Bigger_Console.tar.gz -C $PTERO/temp
-cp -rf -- $PTERO/temp/Bigger_Console/* "$PTERO"
+
+if [ "$INSTALL_MORE_BUTTONS" == true ]; then
+    curl -sSLo $PTERO/temp/Bigger_Console_And_More_Buttons.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/merged_addons/Bigger_Console_And_More_Buttons.tar.gz
+    tar -xzvf $PTERO/temp/Bigger_Console_And_More_Buttons.tar.gz -C $PTERO/temp
+    cp -rf -- $PTERO/temp/Bigger_Console_And_More_Buttons/* "$PTERO"
+  elif [ "$INSTALL_MC_PASTE" == true ]; then
+    curl -sSLo $PTERO/temp/Bigger_Console_And_MC_Paste.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/merged_addons/Bigger_Console_And_MC_Paste.tar.gz
+    tar -xzvf $PTERO/temp/Bigger_Console_And_MC_Paste.tar.gz -C $PTERO/temp
+    cp -rf -- $PTERO/temp/Bigger_Console_And_MC_Paste/* "$PTERO"
+  elif [ "$INSTALL_MORE_BUTTONS" == true ] && [ "$INSTALL_MC_PASTE" == true ]; then
+    curl -sSLo $PTERO/temp/Bigger_Console_And_More_Buttons_And_MC_Paste.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/merged_addons/Bigger_Console_And_More_Buttons_And_MC_Paste.tar.gz
+    tar -xzvf $PTERO/temp/Bigger_Console_And_More_Buttons_And_MC_Paste.tar.gz -C $PTERO/temp
+    cp -rf -- $PTERO/temp/Bigger_Console_And_More_Buttons_And_MC_Paste/* "$PTERO"
+  else
+    curl -sSLo $PTERO/temp/Bigger_Console.tar.gz https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons/"${SCRIPT_VERSION}"/addons/version1.x/Bigger_Console/Bigger_Console.tar.gz
+    tar -xzvf $PTERO/temp/Bigger_Console.tar.gz -C $PTERO/temp
+    cp -rf -- $PTERO/temp/Bigger_Console/* "$PTERO"
+fi
+
 rm -rf $PTERO/temp
 }
 
@@ -205,11 +221,11 @@ print "Checking if a similar/conflicting addon is already installed..."
 
 sleep 2
 if [ -f "$MORE_BUTTONS" ]; then
-    print_warning "The addon ${YELLOW}More Buttons${RESET} is already installed, aborting..."
-    exit 1
+    print_warning "The addon ${YELLOW}More Buttons${RESET} is already installed, merging..."
+    INSTALL_MORE_BUTTONS=true
   elif [ -f "$MC_PASTE" ]; then
-    print_warning "The addon ${YELLOW}MC Paste${RESET} is already installed, aborting..."
-    exit 1
+    print_warning "The addon ${YELLOW}MC Paste${RESET} is already installed, merging..."
+    INSTALL_MC_PASTE=true
 fi
 }
 
