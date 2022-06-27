@@ -6,10 +6,10 @@ This file is a running track of new features and fixes to each version of the pa
 
 <h3>Changed</h3>
 
-- Addons updated to panel `v1.8.1` version:
-- `Files In Editor`
-- `More Buttons`
-- `More Server Info`
-- `PMA Button Database Tab`
-- `PMA Button Navbar`
-- `Server Router Icons`
+- Addons updated:
+- `Files In Editor` -> `v1.8.1`
+- `More Buttons` -> `v1.8.1`
+- `More Server Info` -> `v1.8.1` and `v1.9.0`
+- `PMA Button Database Tab` -> `v1.8.1`
+- `PMA Button Navbar` -> `v1.8.1`
+- `Server Router Icons` -> `v1.8.1`
