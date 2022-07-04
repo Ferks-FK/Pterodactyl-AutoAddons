@@ -127,14 +127,14 @@ bash <(curl -s https://raw.githubusercontent.com/Ferks-FK/Pterodactyl-AutoAddons
 while [ "$done" == false ]; do
   options=(
     "Restore Panel Backup (Restore your panel if you have problems or want to remove addons)"
-    "Install More Buttons (Only 1.6.6 and 1.7.0)"
+    "Install More Buttons (Only 1.6.6 and 1.8.1)"
     "Install More Server Info (Only 1.8.1 and 1.9.0)"
-    "Install Server Router Icons (Only 1.6.6 and 1.7.0)"
-    "Install PMA Button NavBar (Only 1.6.6 and 1.7.0)"
-    "Install PMA Button Database Tab (Only 1.6.6 and 1.7.0)"
+    "Install Server Router Icons (Only 1.6.6 and v1.8.1)"
+    "Install PMA Button NavBar (Only 1.6.6 and 1.8.1)"
+    "Install PMA Button Database Tab (Only 1.6.6 and 1.8.1)"
     "Install MC Paste (Only 1.6.6 and 1.7.0)"
     "Install Bigger Console (Only 1.6.6 and 1.7.0)"
-    "Install Files In Editor (Only 1.6.6 and 1.7.0)"
+    "Install Files In Editor (Only 1.6.6 and v1.8.1)"
 
 
     "Cancel Installation"
